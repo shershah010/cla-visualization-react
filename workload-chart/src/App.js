@@ -169,6 +169,7 @@ const App = () => {
   return (
     <Container>
       <Title>Weekly Workload Chart</Title>
+      {/*
       <Input
         type="text"
         placeholder="Search courses"
@@ -178,6 +179,7 @@ const App = () => {
           setCurrentPage(1); // Reset to first page on new search
         }}
       />
+      */}
       <CourseList>
         {paginatedCourses.map(course => (
           <div key={course.course_title}>
@@ -188,6 +190,7 @@ const App = () => {
       </CourseList>
       {filteredCourses.length > itemsPerPage && (
         <Pagination>
+        {/*
           <Button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(currentPage - 1)}
@@ -200,6 +203,7 @@ const App = () => {
           >
             Show More Entries
           </Button>
+      */}
         </Pagination>
       )}
       <ToggleContainer>
