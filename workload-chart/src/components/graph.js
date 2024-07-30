@@ -175,18 +175,9 @@ const Graph = () => {
 
   return (
     <Container>
-      <Title>Hi {globalState.user.name}, here's your Weekly Workload Chart</Title>
-      {/*
-      <Input
-        type="text"
-        placeholder="Search courses"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          setCurrentPage(1); // Reset to first page on new search
-        }}
-      />
-      */}
+      {
+        globalState.user && <Title>Hi {globalState.user.name}, here's your Weekly Workload Chart</Title>
+      }
       <CourseList>
         {paginatedCourses.map(course => (
           <div key={course.course_title}>
@@ -195,24 +186,6 @@ const Graph = () => {
           </div>
         ))}
       </CourseList>
-      {filteredCourses.length > itemsPerPage && (
-        <Pagination>
-        {/*
-          <Button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
-            Previous
-          </Button>
-          <Button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            Show More Entries
-          </Button>
-      */}
-        </Pagination>
-      )}
       <ToggleContainer>
         <ToggleButton
           active={showSum}
@@ -253,7 +226,7 @@ const Graph = () => {
           <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0}/>
           <YAxis />
           <Tooltip />
-          <Legend content={<CustomLegend />} /> {/* Use custom legend */}
+          <Legend content={<CustomLegend />} />
           {showSum ? (
             <>
               {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}

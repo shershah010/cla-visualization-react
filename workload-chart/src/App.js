@@ -2,7 +2,7 @@ import React from 'react';
 import Graph from './components/graph'
 import Login from './components/login'
 import {
-  MemoryRouter,
+  BrowserRouter,
   Routes,
   Route
 } from 'react-router-dom';
@@ -10,12 +10,12 @@ import {
 const App = () => {
   return (
     <div>
-      <MemoryRouter>
+      <BrowserRouter>
         <Routes>
           <Route path='/' element={<Login/>} />
           <Route path='/graph' element={<Graph/>} />
         </Routes>
-      </MemoryRouter>
+      </BrowserRouter>
     </div>
 
   )
