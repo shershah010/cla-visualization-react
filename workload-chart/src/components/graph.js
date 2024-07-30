@@ -8,6 +8,7 @@ import semesterData from '../data/semesterData.json';
 import CustomLegend from '../CustomLegend'; // Import custom legend
 import { useGlobalState } from './globalState';
 import { useNavigate } from 'react-router';
+import { AWS_ENDPOINT } from '../config';
 
 const Container = styled.div`
   display: flex;
@@ -161,10 +162,40 @@ const Graph = () => {
   const paginatedCourses = filteredCourses.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
 
-  useEffect(() => {
+  const checkAuthentication = async () => {
     if (!globalState.isAuthenticated) {
+      const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user_id='))
+        ?.split('=')[1];
+
+      if (cookieValue) {
+        try {
+          const response = await fetch(`${AWS_ENDPOINT}/fetch-user?user_id=${cookieValue}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            setGlobalState('user', data.user);
+            setGlobalState('isAuthenticated', true);
+          } else {
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          navigate('/');
+        }
+      } else {
         navigate('/');
+      }
+    } else {
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
+      }
     }
+  };
+
+  useEffect(() => {
+    checkAuthentication();
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }

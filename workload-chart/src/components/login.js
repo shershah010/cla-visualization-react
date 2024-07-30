@@ -53,7 +53,7 @@ const Login = () => {
                 const responseData = await lambdaResponse.json();
                 setGlobalState('isAuthenticated', true);
                 setGlobalState('user', responseData.user);
-                setCookie('user', responseData.token, COOKIE_EXPIRATION);
+                setCookie('user_id', responseData.user.user_id, COOKIE_EXPIRATION);
                 navigate('/graph');
             } else {
                 console.error('Failed to authenticate:', lambdaResponse.statusText);
