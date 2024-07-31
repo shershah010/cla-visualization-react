@@ -1,0 +1,9 @@
+services:
+  cla:
+    container_name: cla
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cla
+    ports:
+      - "3000:3000"
