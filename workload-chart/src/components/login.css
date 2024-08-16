@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100vh;
+}
+  
+body .center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh; /* 80% of the viewport height */
+    position: relative;
+    top: 20%;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.loginButton {
+    display: inline-block;
+    margin-top: 20px;
+}
