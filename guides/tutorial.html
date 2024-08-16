@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Load Analysis</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        
+        h1, h2 {
+            color: #222;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+    
+        h1 {
+            font-size: 2.5em;
+        }
+    
+        h2 {
+            font-size: 2em;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table, th, td {
+            border: 1px solid #e0e0e0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .description {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        .range {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Course Load Analytics: Introduction</h1>
+
+<p>Welcome to the Course Load Analytics Platform!</p>
+<p>Through this platform, you will receive access to AI-based predictions of course workload, which we call “Course Load Analytics.”
+</p><p>Course load analytics are machine-learned predictions trained on data from past students at your institution.
+These students rated courses they took on the dimensions of time load, mental effort, and psychological stress every week and at the end of the semester.
+</p><p>Predictions leverage course-level data from the learning management system (e.g., Moodle, Canvas, Edmodo) and enrollment records (e.g., grade data and co-enrollment sequences).
+</p><p>
+Research, including at your institution, has shown that these predictions are a more accurate representation of student workload perceptions than institutionally provided credit hours.
+</p><p>
+Course Load Analytics break down into three dimensions, in line with common defintions of workload from psychology:
+</p><p>
+<ul>
+<li>Time load refers to the weekly time spent on coursework.
+</li><li>Mental effort refers to the concentration and attention required for course completion.
+</li><li>Psychological stress refers to the confusion, frustration, and anxiety during the completion of coursework.
+</li></ul>
+<p> It is important to remember that all estimates represent past data and the average student's experience at your institution.
+Your personal experience of workload might differ, depending on several personal factors.
+</p>
+
+    <h1>What do the different Course Load Analytics scales mean?</h1>
+    
+    <div class="description">
+        <h2>Time Load</h2>
+        <p>Time load is defined as the amount of required attention or concentration related to the completion of coursework and attendance.</p>
+        <p>The scale ranges from 1 (0-5 hours per week) to 5 (21+ hours per week).</p>
+        <p class="range">Range: 1 (0-5 hours per week) to 5 (21+ hours per week)</p>
+        
+        <h3>Example Predictions</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prediction</th>
+                    <th>Top Three Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>High Time Load (4.7)</td>
+                    <td>Closely Parallel Assignments: 8, Forum Posts per Student: 25, Credit Hours: 3</td>
+                </tr>
+                <tr>
+                    <td>Moderate Time Load (3.3)</td>
+                    <td>Assignments: 13, Forum Posts per Student: 20, Closely Parallel Assignments: 4</td>
+                </tr>
+                <tr>
+                    <td>Low Time Load (2.1)</td>
+                    <td>Forum Posts per Student: 15, Credit Hours: 2, Assignments: 9</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="description">
+        <h2>Mental Effort</h2>
+        <p>Mental effort is defined as the amount of required attention or concentration related to the completion of coursework and attendance.</p>
+        <p>The scale ranges from 1 (A very low amount) to 5 (A very high amount).</p>
+        <p class="range">Range: 1 (A very low amount) to 5 (A very high amount)</p>
+        
+        <h3>Example Predictions</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prediction</th>
+                    <th>Top Three Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>High Mental Effort (4.6)</td>
+                    <td>GPA Spread: 3.1, Number of Prerequisites: 6, Number of Graded Assignments: 25</td>
+                </tr>
+                <tr>
+                    <td>Moderate Mental Effort (3.4)</td>
+                    <td>Number of Graded Assignments: 18, GPA Spread: 2.2, Credit Hours: 2</td>
+                </tr>
+                <tr>
+                    <td>Low Mental Effort (2.5)</td>
+                    <td>Number of Prerequisites: 2, Number of Graded Assignments: 12, GPA Spread: 1.9</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="description">
+        <h2>Psychological Stress</h2>
+        <p>Psychological stress is defined as the frequency of confusion, frustration, or anxiety related to the completion of coursework and attendance.</p>
+        <p>The scale ranges from 1 (Nearly never) to 5 (Near always).</p>
+        <p class="range">Range: 1 (Nearly never) to 5 (Near always)</p>
+        
+        <h3>Example Predictions</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prediction</th>
+                    <th>Top Three Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>High Psychological Stress (4.4)</td>
+                    <td>Assignments Announced Close to Deadline: 7, Course GPA: 2.9, Instructor Reply Time: 48 hours</td>
+                </tr>
+                <tr>
+                    <td>Moderate Psychological Stress (3.2)</td>
+                    <td>Instructor Reply Time: 30 hours, Assignments Announced Close to Deadline: 5, Course GPA: 3.2</td>
+                </tr>
+                <tr>
+                    <td>Low Psychological Stress (2.0)</td>
+                    <td>Course GPA: 3.8, Instructor Reply Time: 2 hours, Low Course GPA: 1.7</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<h1>References</h1>
+    <ul>
+        <li>Reid, G. B., & Nygren, T. E. (1988). The subjective workload assessment technique: A scaling procedure for measuring mental workload. In Advances in psychology (Vol. 52, pp. 185-218). North-Holland.
+        </li><li>Pardos, Z. A., Borchers, C., & Yu, R. (2023). Credit hours is not enough: Explaining undergraduate perceptions of course workload using LMS records. The Internet and Higher Education, 56, 100882.
+        </li><li>Borchers, C., & Pardos, Z. A. (2023, March). Insights into undergraduate pathways using course load analytics. In LAK23: 13th International Learning Analytics and Knowledge Conference (pp. 219-229).
+        </li></ul>
+</body>
+</html>
