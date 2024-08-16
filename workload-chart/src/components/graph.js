@@ -209,6 +209,13 @@ const Graph = () => {
     }
   };
 
+  const handleLogout = () => {
+    document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    setGlobalState("user", null);
+    setGlobalState("isAuthenticated", false);
+    navigate("/login");
+  };
+
   useEffect(() => {
     checkAuthentication();
     if (currentPage > totalPages) {
@@ -301,6 +308,9 @@ const Graph = () => {
           )}
         </LineChart>
       </ResponsiveContainer>
+      <Button className="button" onClick={handleLogout}>
+        Logout
+      </Button>
     </Container>
   );
 };
