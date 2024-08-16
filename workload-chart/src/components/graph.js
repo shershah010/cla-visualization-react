@@ -16,6 +16,7 @@ import CustomLegend from "../CustomLegend"; // Import custom legend
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
+import classData from "../data/classData.json";
 
 const Container = styled.div`
   display: flex;
@@ -149,6 +150,8 @@ const Graph = () => {
   const [showTL, setShowTL] = useState(true);
   const [showME, setShowME] = useState(true);
   const [showPS, setShowPS] = useState(true);
+  const [courseSearchValue, setCourseSearchValue] = useState("");
+  const [searchCourses, setSearchCourses] = useState(classData);
   const itemsPerPage = 5;
 
   const handleAddCourse = (course) => {
@@ -164,6 +167,22 @@ const Graph = () => {
   const filteredCourses = claData.claData.filter((course) =>
     course.course_title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const search = (e) => {
+    const searchTerm = e.target.value;
+    setCourseSearchValue(searchTerm);
+
+    const courses = classData.filter(
+      (course) =>
+        course["title"].toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course["subject"].toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course["name"].toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course["department"].toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course["description"].toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setSearchCourses(courses);
+  };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCourses = filteredCourses.slice(
@@ -311,6 +330,23 @@ const Graph = () => {
       <Button className="button" onClick={handleLogout}>
         Logout
       </Button>
+      <div>
+        <Title>Search</Title>
+
+        <Input type="text" value={courseSearchValue} onChange={search}></Input>
+
+        <div>
+          {searchCourses.map((course) => (
+            <div key={course.title}>
+              <h3>{course.title}</h3>
+              <h4>{course.subject}</h4>
+              <h4>{course.name}</h4>
+              <h4>{course.department}</h4>
+              <p>{course.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </Container>
   );
 };
