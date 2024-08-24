@@ -33,9 +33,20 @@ const Button = styled.button`
   }
 `;
 
-
 const Spacer = styled.div`
   flex: 1 1 auto;
+`;
+
+const StyledLink = styled(Link)`
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+  border-radius: 4px;
+  background-color: #007bff;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const Navbar = () => {
@@ -51,8 +62,8 @@ const Navbar = () => {
 
   return (
     <Container>
-      <Link to="/">CLA</Link>
-      <Link to="/search">Search</Link>
+      <StyledLink to="/">CLA</StyledLink>
+      <StyledLink to="/search">Search</StyledLink>
 
       <Spacer></Spacer>
 
