@@ -16,7 +16,7 @@ import CustomLegend from "../CustomLegend"; // Import custom legend
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
-import classData from "../data/classData.json";
+import Navbar from "./navbar";
 
 const Container = styled.div`
   display: flex;
@@ -150,8 +150,6 @@ const Graph = () => {
   const [showTL, setShowTL] = useState(true);
   const [showME, setShowME] = useState(true);
   const [showPS, setShowPS] = useState(true);
-  const [courseSearchValue, setCourseSearchValue] = useState("");
-  const [searchCourses, setSearchCourses] = useState(classData);
   const itemsPerPage = 5;
 
   const handleAddCourse = (course) => {
@@ -167,22 +165,6 @@ const Graph = () => {
   const filteredCourses = claData.claData.filter((course) =>
     course.course_title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const search = (e) => {
-    const searchTerm = e.target.value;
-    setCourseSearchValue(searchTerm);
-
-    const courses = classData.filter(
-      (course) =>
-        course["title"].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course["subject"].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course["name"].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course["department"].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course["description"].toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    setSearchCourses(courses);
-  };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCourses = filteredCourses.slice(
@@ -228,13 +210,6 @@ const Graph = () => {
     }
   };
 
-  const handleLogout = () => {
-    document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    setGlobalState("user", null);
-    setGlobalState("isAuthenticated", false);
-    navigate("/login");
-  };
-
   useEffect(() => {
     checkAuthentication();
     if (currentPage > totalPages) {
@@ -246,108 +221,95 @@ const Graph = () => {
   const individualData = processIndividualData(courseBasket);
 
   return (
-    <Container>
-      {globalState.user && (
-        <Title>
-          Hi {globalState.user.name}, here's your Weekly Workload Chart
-        </Title>
-      )}
-      <CourseList>
-        {paginatedCourses.map((course) => (
-          <div key={course.course_title}>
-            {course.course_title}
-            <Button onClick={() => handleAddCourse(course)}>Add</Button>
-          </div>
-        ))}
-      </CourseList>
-      <ToggleContainer>
-        <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
-          {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
-        </ToggleButton>
-        <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
-          {showTL ? "Hide Time Load" : "Show Time Load"}
-        </ToggleButton>
-        <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
-          {showME ? "Hide Mental Effort" : "Show Mental Effort"}
-        </ToggleButton>
-        <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
-          {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
-        </ToggleButton>
-      </ToggleContainer>
-      <CourseList>
-        {courseBasket.map((course) => (
-          <div key={course.course_title}>
-            {course.course_title}
-            <Button onClick={() => handleRemoveCourse(course)}>Remove</Button>
-          </div>
-        ))}
-      </CourseList>
-      <ResponsiveContainer width="95%" height={400}>
-        <LineChart data={showSum ? sumData : []}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
-          <YAxis />
-          <Tooltip />
-          <Legend content={<CustomLegend />} />
-          {showSum ? (
-            <>
-              {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}
-              {showME && <Line type="monotone" dataKey="me" stroke="#82ca9d" />}
-              {showPS && <Line type="monotone" dataKey="ps" stroke="#ffc658" />}
-            </>
-          ) : (
-            courseBasket.map((course) => (
-              <>
-                {showTL && (
-                  <Line
-                    type="monotone"
-                    dataKey="tl"
-                    data={individualData[course.course_title]}
-                    stroke="#8884d8"
-                  />
-                )}
-                {showME && (
-                  <Line
-                    type="monotone"
-                    dataKey="me"
-                    data={individualData[course.course_title]}
-                    stroke="#82ca9d"
-                  />
-                )}
-                {showPS && (
-                  <Line
-                    type="monotone"
-                    dataKey="ps"
-                    data={individualData[course.course_title]}
-                    stroke="#ffc658"
-                  />
-                )}
-              </>
-            ))
-          )}
-        </LineChart>
-      </ResponsiveContainer>
-      <Button className="button" onClick={handleLogout}>
-        Logout
-      </Button>
-      <div>
-        <Title>Search</Title>
+    <div>
 
-        <Input type="text" value={courseSearchValue} onChange={search}></Input>
+      <Navbar />
+      
+      <Container>
+        
 
-        <div>
-          {searchCourses.map((course) => (
-            <div key={course.title}>
-              <h3>{course.title}</h3>
-              <h4>{course.subject}</h4>
-              <h4>{course.name}</h4>
-              <h4>{course.department}</h4>
-              <p>{course.description}</p>
+        {globalState.user && (
+          <Title>
+            Hi {globalState.user.name}, here's your Weekly Workload Chart
+          </Title>
+        )}
+        <CourseList>
+          {paginatedCourses.map((course) => (
+            <div key={course.course_title}>
+              {course.course_title}
+              <Button onClick={() => handleAddCourse(course)}>Add</Button>
             </div>
           ))}
-        </div>
-      </div>
-    </Container>
+        </CourseList>
+        <ToggleContainer>
+          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
+            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
+          </ToggleButton>
+          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
+            {showTL ? "Hide Time Load" : "Show Time Load"}
+          </ToggleButton>
+          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
+            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
+          </ToggleButton>
+          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
+            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
+          </ToggleButton>
+        </ToggleContainer>
+        <CourseList>
+          {courseBasket.map((course) => (
+            <div key={course.course_title}>
+              {course.course_title}
+              <Button onClick={() => handleRemoveCourse(course)}>Remove</Button>
+            </div> 
+          ))}
+        </CourseList>
+        <ResponsiveContainer width="95%" height={400}>
+          <LineChart data={showSum ? sumData : []}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
+            <YAxis />
+            <Tooltip />
+            <Legend content={<CustomLegend />} />
+            {showSum ? (
+              <>
+                {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}
+                {showME && <Line type="monotone" dataKey="me" stroke="#82ca9d" />}
+                {showPS && <Line type="monotone" dataKey="ps" stroke="#ffc658" />}
+              </>
+            ) : (
+              courseBasket.map((course) => (
+                <>
+                  {showTL && (
+                    <Line
+                      type="monotone"
+                      dataKey="tl"
+                      data={individualData[course.course_title]}
+                      stroke="#8884d8"
+                    />
+                  )}
+                  {showME && (
+                    <Line
+                      type="monotone"
+                      dataKey="me"
+                      data={individualData[course.course_title]}
+                      stroke="#82ca9d"
+                    />
+                  )}
+                  {showPS && (
+                    <Line
+                      type="monotone"
+                      dataKey="ps"
+                      data={individualData[course.course_title]}
+                      stroke="#ffc658"
+                    />
+                  )}
+                </>
+              ))
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </Container>
+    </div>
   );
 };
 
