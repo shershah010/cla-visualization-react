@@ -166,10 +166,10 @@ const Search = () => {
                   textToHighlight={course.course_title}
                 />
               </h3>
-              <p>tl: {course.total.tl}</p>
-              <p>me: {course.total.me}</p>
-              <p>ps: {course.total.ps}</p>
-              <p>ch: {course.total.ch}</p>
+              <p>Time Load: {course.total.tl}</p>
+              <p>Mental Effort: {course.total.me}</p>
+              <p>Psychological Stress: {course.total.ps}</p>
+              <p>Credit Hours: {course.total.ch}</p>
             </Course>
           ))}
         </CourseList>
