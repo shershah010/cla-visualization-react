@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import levenshtein from "fast-levenshtein";
+import Highlighter from "react-highlight-words";
 import claData from "../data/claData.json";
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
@@ -65,6 +67,15 @@ const CourseList = styled.div`
   }
 `;
 
+const Course = styled.div`
+  display: block !important;
+  width: 100%;
+
+  & > p {
+    line-height: 30px;
+  }
+`;
+
 
 
 const Search = () => {
@@ -112,9 +123,17 @@ const Search = () => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
 
-    const courses = claData["claData"].filter(course =>
-      course["course_title"].toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const courses = claData["claData"]
+      .map(course => [
+        course, 
+        Math.min(...course["course_title"] // get the ranking which is the min distance between the individual words in the course title and the search term
+          .toLowerCase() // lowercase the title
+          .split(" ") // split title to multiple words
+          .map(word => levenshtein.get(word, searchTerm.toLowerCase())) // get character distance between the individual words and the search term
+        )
+      ])
+      .sort((a, b) => a[1] - b[1]) // sort the courses by the ranking
+      .map(a => a[0]); // remove the ranking
 
     setSearchCourses(courses);
     
@@ -138,9 +157,20 @@ const Search = () => {
 
           <CourseList>
           {searchCourses.map(course => (
-            <div key={course.course_title}>
-              <h3>{course.course_title}</h3>
-            </div>
+            <Course key={course.course_title}>
+              <h3>
+                <Highlighter 
+                  highlightClassName="highlighter"
+                  searchWords={[searchTerm]}
+                  autoEscape={true}
+                  textToHighlight={course.course_title}
+                />
+              </h3>
+              <p>tl: {course.total.tl}</p>
+              <p>me: {course.total.me}</p>
+              <p>ps: {course.total.ps}</p>
+              <p>ch: {course.total.ch}</p>
+            </Course>
           ))}
         </CourseList>
 
