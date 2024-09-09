@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import levenshtein from "fast-levenshtein";
+import Highlighter from "react-highlight-words";
+import ReactPaginate from 'react-paginate';
 import claData from "../data/claData.json";
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
@@ -50,12 +53,14 @@ const CourseList = styled.div`
   margin: 10px 0;
   display: flex;
   flex-wrap: wrap;
+  width: 90rem;
 
   & > div {
     background-color: #f0f0f0;
     padding: 10px;
     margin: 5px;
     border-radius: 4px;
+
     display: flex;
     align-items: center;
 
@@ -65,13 +70,61 @@ const CourseList = styled.div`
   }
 `;
 
+const Course = styled.div`
+  display: block !important;
+  width: 100%;
 
+  & > p {
+    line-height: 30px;
+  }
+`;
+
+const StyledPaginate = styled(ReactPaginate).attrs({ activeClassName: 'active' })`
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  list-style-type: none;
+  padding: 0 5rem;
+
+  li a {
+    border-radius: 3px;
+    padding: 0.1rem 1rem;
+    border: gray 1px solid;
+    cursor: pointer;
+  }
+  li.previous a,
+  li.next a,
+  li.break a {
+    border-color: transparent;
+  }
+  li.active a {
+    background-color: #0366d6;
+    border-color: transparent;
+    color: white;
+    min-width: 32px;
+  }
+  li.disabled a {
+    color: grey;
+  }
+  li.disable,
+  li.disabled a {
+    cursor: default;
+  }
+`;
 
 const Search = () => {
+  const coursesPerPage = 5;
+
   const navigate = useNavigate();
   const [globalState, setGlobalState] = useGlobalState();
   const [searchCourses, setSearchCourses] = useState(claData["claData"]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [courseOffset, setCourseOffset] = useState(0);
+
+  const endOffset = courseOffset + coursesPerPage;
+  const currentSearchCourses = searchCourses.slice(courseOffset, endOffset);
+  const pageCount = Math.ceil(searchCourses.length / coursesPerPage);
 
 
   const checkAuthentication = async () => {
@@ -112,11 +165,20 @@ const Search = () => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
 
-    const courses = claData["claData"].filter(course =>
-      course["course_title"].toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const courses = claData["claData"]
+      .map(course => [
+        course, 
+        Math.min(...course["course_title"] // get the ranking which is the min distance between the individual words in the course title and the search term
+          .toLowerCase() // lowercase the title
+          .split(" ") // split title to multiple words
+          .map(word => levenshtein.get(word, searchTerm.toLowerCase())) // get character distance between the individual words and the search term
+        )
+      ])
+      .sort((a, b) => a[1] - b[1]) // sort the courses by the ranking
+      .map(a => a[0]); // remove the ranking
 
     setSearchCourses(courses);
+    setCourseOffset(0);
     
   };
 
@@ -124,6 +186,13 @@ const Search = () => {
   useEffect(() => {
     checkAuthentication();
   }, [globalState]);
+
+
+  // Invoke when user click to request another page.
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * coursesPerPage) % searchCourses.length;
+    setCourseOffset(newOffset);
+  };
 
   return (
     <div>
@@ -137,12 +206,32 @@ const Search = () => {
           <Input type="text" value={searchTerm} onChange={search}></Input>
 
           <CourseList>
-          {searchCourses.map(course => (
-            <div key={course.course_title}>
-              <h3>{course.course_title}</h3>
-            </div>
+          {currentSearchCourses.map(course => (
+            <Course key={course.course_title}>
+              <h3>
+                <Highlighter 
+                  highlightClassName="highlighter"
+                  searchWords={[searchTerm]}
+                  autoEscape={true}
+                  textToHighlight={course.course_title}
+                />
+              </h3>
+              <p>Time Load: {course.total.tl}</p>
+              <p>Mental Effort: {course.total.me}</p>
+              <p>Psychological Stress: {course.total.ps}</p>
+              <p>Credit Hours: {course.total.ch}</p>
+            </Course>
           ))}
         </CourseList>
+        <StyledPaginate
+          breakLabel="..."
+          nextLabel="next >"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={5}
+          pageCount={pageCount}
+          previousLabel="< previous"
+          renderOnZeroPageCount={null}
+        />
 
         </div>
       </Container>
