@@ -30,14 +30,6 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Input = styled.input`
-  padding: 10px;
-  margin: 10px 0;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
 const Button = styled.button`
   padding: 10px;
   margin: 5px;
@@ -96,60 +88,17 @@ const ToggleContainer = styled.div`
   margin: 20px 0;
 `;
 
-const processData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-
-  const data = weeks.map((week, index) => {
-    const weekKey = `week${index + 1}`;
-    const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-
-    courses.forEach((course) => {
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl += courseWeekData[weekKey].tl;
-        weekData.me += courseWeekData[weekKey].me;
-        weekData.ps += courseWeekData[weekKey].ps;
-      }
-    });
-
-    return weekData;
-  });
-
-  return data;
-};
-
-const processIndividualData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-  const data = {};
-
-  courses.forEach((course) => {
-    const courseData = weeks.map((week, index) => {
-      const weekKey = `week${index + 1}`;
-      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl = courseWeekData[weekKey].tl;
-        weekData.me = courseWeekData[weekKey].me;
-        weekData.ps = courseWeekData[weekKey].ps;
-      }
-      return weekData;
-    });
-    data[course.course_title] = courseData;
-  });
-
-  return data;
-};
-
 const Graph = () => {
   const [courseBasket, setCourseBasket] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const [globalState, setGlobalState] = useGlobalState();
-  const [searchTerm, setSearchTerm] = useState("");
   const [showSum, setShowSum] = useState(true);
   const [showTL, setShowTL] = useState(true);
   const [showME, setShowME] = useState(true);
   const [showPS, setShowPS] = useState(true);
+  const [htmlContent, setHtmlContent] = useState(""); // State to hold fetched HTML
+
   const itemsPerPage = 5;
 
   const handleAddCourse = (course) => {
@@ -162,8 +111,34 @@ const Graph = () => {
     setCourseBasket(courseBasket.filter((c) => c !== course));
   };
 
+  const fetchBuckets = async () => {
+    if (globalState?.user?.user_id) {
+      try {
+        const response = await fetch("/fetch-buckets", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: globalState.user.user_id }),
+        });
+
+        if (response.ok) {
+          const data = await response.text(); // Fetch HTML as plain text
+          setHtmlContent(data); // Store the HTML content
+          console.log("Fetched buckets successfully");
+        } else {
+          console.error("Failed to fetch buckets");
+        }
+      } catch (error) {
+        console.error("Error occurred during fetchBuckets", error);
+      }
+    } else {
+      console.log("globalState.user.user_id not available");
+    }
+  };
+
   const filteredCourses = claData.claData.filter((course) =>
-    course.course_title.toLowerCase().includes(searchTerm.toLowerCase())
+    course.course_title.toLowerCase().includes("")
   );
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -217,22 +192,20 @@ const Graph = () => {
     }
   }, [filteredCourses, totalPages, currentPage, globalState]);
 
-  const sumData = processData(courseBasket);
-  const individualData = processIndividualData(courseBasket);
-
   return (
     <div>
-
       <Navbar />
-      
       <Container>
-        
-
         {globalState.user && (
           <Title>
             Hi {globalState.user.name}, here's your Weekly Workload Chart
           </Title>
         )}
+        <Button onClick={fetchBuckets}>Fetch Buckets</Button>
+
+        {/* Render HTML content */}
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }}></div>
+
         <CourseList>
           {paginatedCourses.map((course) => (
             <div key={course.course_title}>
@@ -241,73 +214,6 @@ const Graph = () => {
             </div>
           ))}
         </CourseList>
-        <ToggleContainer>
-          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
-            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
-          </ToggleButton>
-          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
-            {showTL ? "Hide Time Load" : "Show Time Load"}
-          </ToggleButton>
-          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
-            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
-          </ToggleButton>
-          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
-            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
-          </ToggleButton>
-        </ToggleContainer>
-        <CourseList>
-          {courseBasket.map((course) => (
-            <div key={course.course_title}>
-              {course.course_title}
-              <Button onClick={() => handleRemoveCourse(course)}>Remove</Button>
-            </div> 
-          ))}
-        </CourseList>
-        <ResponsiveContainer width="95%" height={400}>
-          <LineChart data={showSum ? sumData : []}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
-            <YAxis />
-            <Tooltip />
-            <Legend content={<CustomLegend />} />
-            {showSum ? (
-              <>
-                {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}
-                {showME && <Line type="monotone" dataKey="me" stroke="#82ca9d" />}
-                {showPS && <Line type="monotone" dataKey="ps" stroke="#ffc658" />}
-              </>
-            ) : (
-              courseBasket.map((course) => (
-                <>
-                  {showTL && (
-                    <Line
-                      type="monotone"
-                      dataKey="tl"
-                      data={individualData[course.course_title]}
-                      stroke="#8884d8"
-                    />
-                  )}
-                  {showME && (
-                    <Line
-                      type="monotone"
-                      dataKey="me"
-                      data={individualData[course.course_title]}
-                      stroke="#82ca9d"
-                    />
-                  )}
-                  {showPS && (
-                    <Line
-                      type="monotone"
-                      dataKey="ps"
-                      data={individualData[course.course_title]}
-                      stroke="#ffc658"
-                    />
-                  )}
-                </>
-              ))
-            )}
-          </LineChart>
-        </ResponsiveContainer>
       </Container>
     </div>
   );
