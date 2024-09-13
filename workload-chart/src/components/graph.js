@@ -18,6 +18,9 @@ import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
 import Navbar from "./navbar";
 
+import CreateBucketForm from "./modifyBucket";
+import ModifyBucketForm from "./createBucket";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -114,7 +117,7 @@ const Graph = () => {
   const fetchBuckets = async () => {
     if (globalState?.user?.user_id) {
       try {
-        const response = await fetch("/fetch-buckets", {
+        const response = await fetch("https://bgxc1mncrb.execute-api.us-west-1.amazonaws.com/prod/fetch-buckets", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -215,6 +218,14 @@ const Graph = () => {
           ))}
         </CourseList>
       </Container>
+      <div>
+      <Navbar />
+      <Container>
+        {/* Existing content */}
+        <CreateBucketForm />
+        <ModifyBucketForm />
+      </Container>
+    </div>
     </div>
   );
 };
