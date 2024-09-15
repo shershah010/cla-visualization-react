@@ -189,7 +189,7 @@ const Search = () => {
     if (globalState?.user?.user_id) {
       try {
         const response = await fetch(
-          "https://bgxc1mncrb.execute-api.us-west-1.amazonaws.com/prod/fetch-buckets",
+          `${AWS_ENDPOINT}fetch-buckets`,
           {
             method: "POST",
             headers: {
@@ -225,7 +225,7 @@ const Search = () => {
   // Delete a bucket
   const handleDeleteBucket = async (bucketId) => {
     try {
-      const response = await fetch("https://bgxc1mncrb.execute-api.us-west-1.amazonaws.com/prod/modify-bucket", {
+      const response = await fetch(`${AWS_ENDPOINT}/modify-bucket`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -309,7 +309,7 @@ const Search = () => {
       const existingBucket = baskets.find((basket) => basket.name === bucketName); // needs fixing, skip for now
       if (false) {
         // Modify the existing bucket
-        const response = await fetch("https://bgxc1mncrb.execute-api.us-west-1.amazonaws.com/prod/modify-bucket", {
+        const response = await fetch(`${AWS_ENDPOINT}/modify-bucket`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -330,7 +330,7 @@ const Search = () => {
         }
       } else {
         // Create a new bucket
-        const response = await fetch("https://bgxc1mncrb.execute-api.us-west-1.amazonaws.com/prod/create-bucket", {
+        const response = await fetch(`${AWS_ENDPOINT}/create-bucket`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
