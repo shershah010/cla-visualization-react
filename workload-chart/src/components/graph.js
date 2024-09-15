@@ -247,10 +247,15 @@ const Graph = () => {
   }} 
   onVisualizeBucket={(bucket) => {
     var courseIds = bucket.course_ids;
+    var noCourses = courseIds.length === 0;
     const coursesToVisualize = claData.claData.filter((course) => 
       courseIds.includes(course.course_title)
     );
-    setBucketVizName('Currently visualized bucket: '+bucket.bucket_name);
+    if (noCourses) {
+      setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
+    } else {
+      setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+    }
     setCourseBasket(coursesToVisualize);
   }}
 />     

@@ -222,35 +222,6 @@ const Search = () => {
     }
   };
 
-  // Delete a bucket
-  const handleDeleteBucket = async (bucketId) => {
-    try {
-      const response = await fetch(`${AWS_ENDPOINT}/modify-bucket`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: globalState?.user?.user_id,
-          bucket_id: bucketId,
-          is_delete: true,
-        }),
-      });
-
-      if (response.ok) {
-        alert("Bucket deleted successfully!");
-        // Remove the deleted bucket from the local state
-        const updatedBaskets = baskets.filter(basket => basket.id !== bucketId);
-        setBaskets(updatedBaskets);
-      } else {
-        alert("Failed to delete bucket.");
-      }
-    } catch (error) {
-      console.error("Error deleting bucket:", error);
-      alert("Error deleting bucket.");
-    }
-  };
-
   // Function to handle adding a course to the current basket
   const addCourseToBasket = (course) => {
     const currentBasket = baskets[currentBasketIndex];
@@ -296,6 +267,14 @@ const Search = () => {
   const handlePageClick = (event) => {
     const newOffset = (event.selected * coursesPerPage) % searchCourses.length;
     setCourseOffset(newOffset);
+  };
+
+  const removeCourseFromBasket = (course) => {
+    const updatedBaskets = [...baskets];
+    updatedBaskets[currentBasketIndex].courses = updatedBaskets[currentBasketIndex].courses.filter(
+      (existingCourse) => existingCourse.course_title !== course.course_title
+    );
+    setBaskets(updatedBaskets);
   };
 
   // Save or modify bucket
@@ -404,14 +383,19 @@ const Search = () => {
   </div>
 
   {/* Block 3: Courses in Current Basket */}
-  <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-    <h3>Courses in {baskets[currentBasketIndex].name}:</h3>
-    <ul>
-      {baskets[currentBasketIndex].courses.map((course, index) => (
-        <li key={index}>{course.course_title}</li>
-      ))}
-    </ul>
-  </div>
+<div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  <h3>Courses in {baskets[currentBasketIndex].name}:</h3>
+  <ul>
+    {baskets[currentBasketIndex].courses.map((course, index) => (
+      <li key={index}>
+        {course.course_title}
+        <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+          Remove
+        </button>
+      </li>
+    ))}
+  </ul>
+</div>
 </div>
 
         <div>
