@@ -77,13 +77,13 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
 
   return (
     <div>
-      <h3>Your Course Baskets</h3>
+      <h3 style={{display: 'block', marginBottom: '10px'}}>Your Course Baskets</h3>
       {/* Display fetched buckets */}
       {Object.keys(buckets).length > 0 ? (
         <ul>
           {Object.entries(buckets).map(([id, bucket]) => (
-            <li key={id}>
-              <strong>{bucket.bucket_name}</strong>
+            <li key={id} style={{display: 'block', marginBottom: '10px' }}>
+              <strong style={{display: 'block', marginBottom: '10px'}}>{bucket.bucket_name}</strong>
               <button onClick={() => onVisualizeBucket(bucket)}>Visualize</button> 
               <button onClick={() => handleDeleteBucket(id)}>Delete</button>
             </li>
@@ -92,8 +92,6 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
       ) : (
         <p>No course baskets available. Please create baskets using Search.</p>
       )}
-      {/* Optional HTML content display for debugging */}
-      <div style={{ display: 'none' }}>{htmlContent}</div>
     </div>
   );
 };

@@ -245,6 +245,9 @@ const Search = () => {
 
   const addNewBasket = () => {
     setBaskets([...baskets, { name: `Basket ${baskets.length + 1}`, courses: [] }]);
+    setIsRenaming(false);
+    startRenamingBasket();
+    changeBasket(baskets.length);
   };
 
   const startRenamingBasket = () => {
@@ -341,13 +344,13 @@ const Search = () => {
       
 
         {/* Basket selection and display */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', width: '90vw'}}>
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-    <h2>Options</h2>
-    <button onClick={addNewBasket} style={{ marginRight: '5px' }}>Add New Basket</button>
-    <button onClick={startRenamingBasket} style={{ marginRight: '5px' }}>Rename Basket</button>
-    <button onClick={saveBucket}>Save Current Basket</button>
+    <h2 style={{ display: 'block', marginBottom: '10px' }}>Options</h2>
+    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
+    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
+    <button onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</button>
 
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
@@ -364,16 +367,16 @@ const Search = () => {
 
   {/* Block 2: Basket List */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', textAlign: 'center' }}>
-    <h3>My Baskets</h3>
+    <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
     <div>
       {baskets.map((basket, index) => (
-        <button
+        <button 
           key={index}
           onClick={() => changeBasket(index)}
           style={{ 
             fontWeight: currentBasketIndex === index ? 'bold' : 'normal',
             display: 'block',
-            margin: '5px 0'
+            marginBottom: '10px'
           }}
         >
           {basket.name}
@@ -383,11 +386,11 @@ const Search = () => {
   </div>
 
   {/* Block 3: Courses in Current Basket */}
-<div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-  <h3>Courses in {baskets[currentBasketIndex].name}:</h3>
+<div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>Courses in {baskets[currentBasketIndex].name}:</h3>
   <ul>
     {baskets[currentBasketIndex].courses.map((course, index) => (
-      <li key={index}>
+      <li key={index} style={{display: 'block', marginBottom: '10px' }}>
         {course.course_title}
         <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
           Remove
@@ -398,9 +401,12 @@ const Search = () => {
 </div>
 </div>
 
+
+
         <div>
           <Title>Search</Title>
 
+          <h3>Search for courses by entering text below:</h3>
           <Input type="text" value={searchTerm} onChange={search}></Input>
 
           <CourseList>

@@ -259,7 +259,7 @@ const Graph = () => {
     setCourseBasket(coursesToVisualize);
   }}
 />     
-        <div>
+        <div style={{display: 'block', marginTop: '20px'}}>
           <i><b>{bucketVizName}</b></i>
         </div>
         <CourseList>
