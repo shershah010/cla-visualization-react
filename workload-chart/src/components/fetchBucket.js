@@ -77,7 +77,7 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
 
   return (
     <div>
-      <h3>Fetched Buckets</h3>
+      <h3>Your Course Baskets</h3>
       {/* Display fetched buckets */}
       {Object.keys(buckets).length > 0 ? (
         <ul>
@@ -90,7 +90,7 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
           ))}
         </ul>
       ) : (
-        <p>Loading your course baskets...</p>
+        <p>No course baskets available. Please create baskets using Search.</p>
       )}
       {/* Optional HTML content display for debugging */}
       <div style={{ display: 'none' }}>{htmlContent}</div>

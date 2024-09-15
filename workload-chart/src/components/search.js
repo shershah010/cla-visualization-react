@@ -121,7 +121,7 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courseOffset, setCourseOffset] = useState(0);
 
-  const [baskets, setBaskets] = useState([{ name: 'Default Basket', courses: [] }]);
+  const [baskets, setBaskets] = useState([{ name: 'New Basket', courses: [] }]);
   const [currentBasketIndex, setCurrentBasketIndex] = useState(0);
 
   const [isRenaming, setIsRenaming] = useState(false);
@@ -189,7 +189,7 @@ const Search = () => {
     if (globalState?.user?.user_id) {
       try {
         const response = await fetch(
-          `${AWS_ENDPOINT}fetch-buckets`,
+          `${AWS_ENDPOINT}/fetch-buckets`,
           {
             method: "POST",
             headers: {
@@ -307,7 +307,7 @@ const Search = () => {
     try {
       // Check if a bucket with the same name exists
       const existingBucket = baskets.find((basket) => basket.name === bucketName); // needs fixing, skip for now
-      if (false) {
+      if (existingBucket.id) {
         // Modify the existing bucket
         const response = await fetch(`${AWS_ENDPOINT}/modify-bucket`, {
           method: "POST",
@@ -359,28 +359,13 @@ const Search = () => {
       <Navbar />
 
       <Container>
-        {/* Display buckets and allow deletion */}
-        <div>
-          <h3>Fetched Buckets</h3>
-          {baskets.length > 0 ? (
-            <ul>
-              {baskets.map((basket) => (
-                <li key={basket.id || basket.name}>
-                  <strong>{basket.name}</strong>
-                  {basket.id && <button onClick={() => handleDeleteBucket(basket.id)}>Delete</button>}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No buckets available.</p>
-          )}
-        </div>
+      
 
         {/* Basket selection and display */}
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-    <h2>Current Basket: {baskets[currentBasketIndex].name}</h2>
+    <h2>Options</h2>
     <button onClick={addNewBasket} style={{ marginRight: '5px' }}>Add New Basket</button>
     <button onClick={startRenamingBasket} style={{ marginRight: '5px' }}>Rename Basket</button>
     <button onClick={saveBucket}>Save Current Basket</button>
@@ -400,7 +385,7 @@ const Search = () => {
 
   {/* Block 2: Basket List */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', textAlign: 'center' }}>
-    <h3>All Baskets</h3>
+    <h3>My Baskets</h3>
     <div>
       {baskets.map((basket, index) => (
         <button

@@ -255,7 +255,7 @@ const Graph = () => {
   }}
 />     
         <div>
-          <b>{bucketVizName}</b>
+          <i><b>{bucketVizName}</b></i>
         </div>
         <CourseList>
           {courseBasket.map((course) => (
