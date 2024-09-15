@@ -34,7 +34,7 @@ const ModifyBucketForm = () => {
   const [bucketName, setBucketName] = useState("");
   const [courseIds, setCourseIds] = useState("");
   const [isDelete, setIsDelete] = useState(false);
-  const { globalState } = useGlobalState();
+  const [globalState, setGlobalState] = useGlobalState();
 
   const handleModifyBucket = async () => {
     try {
@@ -51,7 +51,7 @@ const ModifyBucketForm = () => {
             ? {}
             : {
                 bucket_name: bucketName || undefined,
-                course_ids: ['new', 'mod!'],//courseIds ? courseIds.split(",").map((id) => id.trim()) : undefined,
+                course_ids: ['new', 'mod!']//courseIds ? courseIds.split(",").map((id) => id.trim()) : undefined,
               }),
         }),
       });

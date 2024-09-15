@@ -51,7 +51,7 @@ const CreateBucketForm = () => {
         body: JSON.stringify({
           user_id: globalState?.user?.user_id,
           bucket_name: bucketName,
-          course_ids: ['ABC', 'AC', 'AA'],
+          course_ids: courseIds.split(",").map((id) => id.trim()),
         }),
       });
 
