@@ -29,25 +29,6 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-const Button = styled.button`
-  padding: 10px;
-  margin: 5px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-`;
-
 const CourseList = styled.div`
   margin: 10px 0;
   display: flex;
@@ -347,7 +328,7 @@ const Search = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', width: '90vw'}}>
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-    <h2 style={{ display: 'block', marginBottom: '10px' }}>Options</h2>
+    <h3 style={{ display: 'block', marginBottom: '10px' }}>Options</h3>
     <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
     <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
     <button onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</button>

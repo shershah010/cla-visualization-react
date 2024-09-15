@@ -64,7 +64,7 @@ const Navbar = () => {
     <Container>
       <StyledLink to="/">CLA</StyledLink>
       <StyledLink to="/search">Search</StyledLink>
-
+      <StyledLink to="/tutorial">Tutorial</StyledLink>
       <Spacer></Spacer>
 
       <Button className="button" onClick={handleLogout}>
