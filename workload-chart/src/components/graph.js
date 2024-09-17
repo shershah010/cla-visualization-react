@@ -18,6 +18,8 @@ import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
 import Navbar from "./navbar";
 
+import FetchBucket from "./fetchBucket";   
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -152,6 +154,9 @@ const Graph = () => {
   const [showPS, setShowPS] = useState(true);
   const itemsPerPage = 5;
 
+  const [buckets, setBuckets] = useState({});
+  const [bucketVizName, setBucketVizName] = useState("The Selected Basket's Name and Courses Will Appear Here");
+
   const handleAddCourse = (course) => {
     if (!courseBasket.includes(course)) {
       setCourseBasket([...courseBasket, course]);
@@ -233,28 +238,30 @@ const Graph = () => {
             Hi {globalState.user.name}, here's your Weekly Workload Chart
           </Title>
         )}
-        <CourseList>
-          {paginatedCourses.map((course) => (
-            <div key={course.course_title}>
-              {course.course_title}
-              <Button onClick={() => handleAddCourse(course)}>Add</Button>
-            </div>
-          ))}
-        </CourseList>
-        <ToggleContainer>
-          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
-            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
-          </ToggleButton>
-          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
-            {showTL ? "Hide Time Load" : "Show Time Load"}
-          </ToggleButton>
-          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
-            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
-          </ToggleButton>
-          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
-            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
-          </ToggleButton>
-        </ToggleContainer>
+
+<FetchBucket 
+  user_id={globalState?.user?.user_id} 
+  onBucketsFetched={(buckets) => setBuckets(buckets)} 
+  onBucketDeleted={(bucketId) => {
+    // Optional: Handle deletion in the parent if needed
+  }} 
+  onVisualizeBucket={(bucket) => {
+    var courseIds = bucket.course_ids;
+    var noCourses = courseIds.length === 0;
+    const coursesToVisualize = claData.claData.filter((course) => 
+      courseIds.includes(course.course_title)
+    );
+    if (noCourses) {
+      setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
+    } else {
+      setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+    }
+    setCourseBasket(coursesToVisualize);
+  }}
+/>     
+        <div style={{display: 'block', marginTop: '20px'}}>
+          <i><b>{bucketVizName}</b></i>
+        </div>
         <CourseList>
           {courseBasket.map((course) => (
             <div key={course.course_title}>
@@ -308,6 +315,20 @@ const Graph = () => {
             )}
           </LineChart>
         </ResponsiveContainer>
+        <ToggleContainer>
+          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
+            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
+          </ToggleButton>
+          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
+            {showTL ? "Hide Time Load" : "Show Time Load"}
+          </ToggleButton>
+          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
+            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
+          </ToggleButton>
+          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
+            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
+          </ToggleButton>
+        </ToggleContainer>
       </Container>
     </div>
   );
