@@ -269,7 +269,7 @@ const Search = () => {
 
     try {
       // Check if a bucket with the same name exists
-      const existingBucket = baskets.find((basket) => basket.name === bucketName); // needs fixing, skip for now
+      const existingBucket = baskets.find((basket) => basket.name === bucketName); 
       if (existingBucket.id) {
         // Modify the existing bucket
         const response = await fetch(`${AWS_ENDPOINT}/modify-bucket`, {
