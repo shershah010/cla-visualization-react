@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import styled from "styled-components";
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
+import { AWS_ENDPOINT } from "../config";
+import axios from "axios";
 
 const Container = styled.div`
   display: flex;
@@ -37,7 +39,7 @@ const Spacer = styled.div`
   flex: 1 1 auto;
 `;
 
-const StyledLink = styled(Link)`
+const StyledLink = styled.div`
   padding: 10px;
   text-decoration: none;
   color: white;
@@ -54,17 +56,37 @@ const Navbar = () => {
   const [globalState, setGlobalState] = useGlobalState();
 
   const handleLogout = () => {
-      document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      setGlobalState("user", null);
-      setGlobalState("isAuthenticated", false);
-      navigate("/login");
-      };
+    document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    setGlobalState("user", null);
+    setGlobalState("isAuthenticated", false);
+    navigate("/login");
+  };
+
+  const handleNav = (path) => {
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "navigate",
+      value: path,
+    }
+
+    axios
+    .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+    .then((response) => {
+      console.log(response);
+      navigate(path);
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
+
+  }
 
   return (
     <Container>
-      <StyledLink to="/">CLA</StyledLink>
-      <StyledLink to="/search">Search</StyledLink>
-      <StyledLink to="/tutorial">Tutorial</StyledLink>
+      <StyledLink onClick={() => handleNav("/")}>CLA</StyledLink>
+      <StyledLink onClick={() => handleNav("/search")}>Search</StyledLink>
+      <StyledLink onClick={() => handleNav("/tutorial")}>Tutorial</StyledLink>
       <Spacer></Spacer>
 
       <Button className="button" onClick={handleLogout}>

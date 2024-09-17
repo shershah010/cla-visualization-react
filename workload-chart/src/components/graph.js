@@ -17,6 +17,7 @@ import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
 import Navbar from "./navbar";
+import axios from 'axios'
 
 import FetchBucket from "./fetchBucket";   
 
@@ -157,14 +158,29 @@ const Graph = () => {
   const [buckets, setBuckets] = useState({});
   const [bucketVizName, setBucketVizName] = useState("The Selected Basket's Name and Courses Will Appear Here");
 
-  const handleAddCourse = (course) => {
-    if (!courseBasket.includes(course)) {
-      setCourseBasket([...courseBasket, course]);
-    }
-  };
-
   const handleRemoveCourse = (course) => {
     setCourseBasket(courseBasket.filter((c) => c !== course));
+  };
+
+  const handleGraphToggle = (setFn, value, param) => {
+    setFn(value);
+
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "toggle-" + param,
+      value: value,
+    };
+
+    axios
+      .post(`${AWS_ENDPOINT}/log`, { log_object: logObject })
+      .then((response) => {
+        console.log("Log response:", response);
+      })
+      .catch((error) => {
+        console.error("Error logging:", error);
+      });
+
   };
 
   const filteredCourses = claData.claData.filter((course) =>
@@ -178,7 +194,26 @@ const Graph = () => {
   );
   const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
 
+  const handleSessionStart = (userStruct, sessionID) => {
+    const logObject = {
+        user_id: userStruct.user_id,
+        session_id: sessionID,
+        action: "session_start",
+        value: sessionID,
+    }
+    
+    axios.post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
+  }
+
   const checkAuthentication = async () => {
+    var userStruct;
+    var sessionID
     if (!globalState.isAuthenticated) {
       const cookieValue = document.cookie
         .split("; ")
@@ -193,8 +228,13 @@ const Graph = () => {
           const data = await response.json();
 
           if (response.ok) {
-            setGlobalState("user", data.user);
+            sessionID = Math.random().toString(36).substring(2, 15);
+            userStruct = data.user;
+            setGlobalState("user", userStruct);
             setGlobalState("isAuthenticated", true);
+            setGlobalState("session_id", sessionID);
+            handleSessionStart(userStruct, sessionID);
+
             if (!data.user.completed_consent) {
               navigate("/consent-form");
             }
@@ -216,9 +256,8 @@ const Graph = () => {
   };
 
   useEffect(() => {
-    checkAuthentication();
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+    if (!globalState.isAuthenticated) {
+      checkAuthentication();
     }
   }, [filteredCourses, totalPages, currentPage, globalState]);
 
@@ -245,7 +284,7 @@ const Graph = () => {
   onBucketDeleted={(bucketId) => {
     // Optional: Handle deletion in the parent if needed
   }} 
-  onVisualizeBucket={(bucket) => {
+  onVisualizeBucket={(id, bucket) => {
     var courseIds = bucket.course_ids;
     var noCourses = courseIds.length === 0;
     const coursesToVisualize = claData.claData.filter((course) => 
@@ -255,8 +294,25 @@ const Graph = () => {
       setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
     } else {
       setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+
     }
     setCourseBasket(coursesToVisualize);
+
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "visualize-bucket",
+      value: id,
+    }
+
+    axios
+    .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+    .then((response) => {
+      console.log("Log response:", response);
+    })
+    .catch((error) => {
+      console.error("Error logging:", error);
+    });
   }}
 />     
         <div style={{display: 'block', marginTop: '20px'}}>
@@ -316,16 +372,16 @@ const Graph = () => {
           </LineChart>
         </ResponsiveContainer>
         <ToggleContainer>
-          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
+          <ToggleButton active={showSum} onClick={() => handleGraphToggle(setShowSum, !showSum, "show-sum")}>
             {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
           </ToggleButton>
-          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
+          <ToggleButton active={showTL} onClick={()  => handleGraphToggle(setShowTL, !showTL, "show-tl")}>
             {showTL ? "Hide Time Load" : "Show Time Load"}
           </ToggleButton>
-          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
+          <ToggleButton active={showME} onClick={() => handleGraphToggle(setShowME, !showME, "show-me")}>
             {showME ? "Hide Mental Effort" : "Show Mental Effort"}
           </ToggleButton>
-          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
+          <ToggleButton active={showPS} onClick={() =>  handleGraphToggle(setShowPS, !showPS, "show-ps")}>
             {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
           </ToggleButton>
         </ToggleContainer>
