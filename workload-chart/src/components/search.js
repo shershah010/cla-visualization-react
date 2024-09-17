@@ -8,6 +8,7 @@ import { useGlobalState } from './globalState';
 import { useNavigate } from 'react-router';
 import { AWS_ENDPOINT } from '../config';
 import Navbar from './navbar';
+import axios from 'axios';
 
 const Container = styled.div`
   display: flex;
@@ -149,6 +150,22 @@ const Search = () => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
 
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "search",
+      value: searchTerm,
+    }
+
+    axios
+      .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error logging search:", error);
+      });
+
     const courses = claData["claData"]
       .map(course => [
         course,
@@ -287,6 +304,20 @@ const Search = () => {
         });
 
         if (response.ok) {
+          const logObject = {
+            user_id: globalState.user.user_id,
+            session_id: globalState.session_id,
+            action: "modify-bucket",
+            value: existingBucket.id,
+          }
+          axios
+          .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error("Error logging modify-bucket:", error);
+          });
           alert("Bucket modified successfully!");
         } else {
           alert("Failed to modify bucket.");
@@ -306,6 +337,21 @@ const Search = () => {
         });
 
         if (response.ok) {
+          const responseData = await response.json();
+          const logObject = {
+            user_id: globalState.user.user_id,
+            session_id: globalState.session_id,
+            action: "create-bucket",
+            value: responseData,
+          }
+          axios
+          .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error("Error logging create-bucket:", error);
+          });
           alert("Bucket created successfully!");
         } else {
           alert("Failed to create bucket.");

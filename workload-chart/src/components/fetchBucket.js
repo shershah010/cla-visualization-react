@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { AWS_ENDPOINT } from "../config";
+import {useGlobalState} from './globalState';
+import axios from 'axios';
 
 const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBucket }) => {
   const [buckets, setBuckets] = useState({});
   const [htmlContent, setHtmlContent] = useState(""); // Optional: for debugging or other purposes
+  const [globalState, setGlobalState] = useGlobalState();
 
   // Fetch buckets
   const fetchBuckets = async () => {
@@ -54,6 +57,20 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
       });
 
       if (response.ok) {
+        const logObject = {
+          user_id: globalState.user.user_id,
+          session_id: globalState.session_id,
+          action: "delete-bucket",
+          value: bucketId,
+        }
+        axios
+        .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+        .then((response) => {
+          console.log("Log response:", response);
+        })
+        .catch((error) => {
+          console.error("Error logging:", error);
+        });
         alert("Bucket deleted successfully!");
         onBucketDeleted(bucketId); // Inform parent component about the deletion
         setBuckets((prevBuckets) => {
@@ -84,7 +101,7 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
           {Object.entries(buckets).map(([id, bucket]) => (
             <li key={id} style={{display: 'block', marginBottom: '10px' }}>
               <strong style={{display: 'block', marginBottom: '10px'}}>{bucket.bucket_name}</strong>
-              <button onClick={() => onVisualizeBucket(bucket)}>Visualize</button> 
+              <button onClick={() => onVisualizeBucket(id, bucket)}>Visualize</button> 
               <button onClick={() => handleDeleteBucket(id)}>Delete</button>
             </li>
           ))}
