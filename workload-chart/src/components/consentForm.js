@@ -112,27 +112,27 @@ const ConsentForm = () => {
           If you agree to be in this study, you will be asked to do the
           following: Students are randomly assigned to the intervention and
           control condition based on their assigned academic advisor.
-          Intervention students who consented receive an additional panel on
+          Intervention students who consented receive an additional link on
           their advising platform that redirects them to the course load
-          analytics (CLA) dashboard. The CLA dashboard platform connects to a
-          basket of student data and an anonymous ID for tracking based on their
+          analytics (CLA) dashboard. The CLA dashboard platform assigns an anonymous 
+          ID for tracking based on their
           institutional SSO login. Logging of platform use includes time of page
           access, number of page accesses, time spent, and timestamped
           clickstream data/clicks. The platform includes weekly and overall CLA
           analytics for each course the student is currently enrolled in, and
           the student can also look up courses and their CLA. The CLA dashboard
           platform remains available throughout the semester. At the end of the
-          semester, a summary report of students’ interactions with the CLA
+          semester, a summary report of de-identified students’ interactions with the CLA
           platform, their academic grades, dropped courses, course enrollments,
           and withdrawal from their program and university (where applicable) is
-          collected.
+          collected and shared with investigators at UC Berkeley.
         </p>
       </div>
 
       <div className="section">
         <h2>Study Time</h2>
         <p>
-          All use of the CLA dashboard is optional, hence no study time estimate
+          All use of the CLA dashboard is completely optional, hence no study time estimate
           is available.
         </p>
       </div>
@@ -280,11 +280,14 @@ const ConsentForm = () => {
       </div>
 
       <div className="section">
+        <h2>Consent</h2>
         <p>
-          By clicking the button below, you agree to participate in this study.
+          To participate in this study, please confirm your consent by checking
+          the box labeled "ACKNOWLEDGE" below. You may download or print a copy 
+          of this consent form for your records.
         </p>
         <Button className="button" onClick={handleConsentConfirmation}>
-          I Consent
+          ACKNOWLEDGE
         </Button>
       </div>
     </div>
