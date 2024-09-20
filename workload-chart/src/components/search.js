@@ -377,15 +377,15 @@ const Search = () => {
           .catch((error) => {
             console.error("Error logging create-bucket:", error);
           });
-          alert("Bucket created successfully!");
+          alert("Basket created successfully!");
           fetchBuckets(); // Re-fetch the buckets after creation
         } else {
-          alert("Failed to create bucket.");
+          alert("Failed to create basket.");
         }
       }
     } catch (error) {
       console.error("Error saving bucket:", error);
-      alert("Error saving bucket.");
+      alert("Error saving basket.");
     }
   };
 
