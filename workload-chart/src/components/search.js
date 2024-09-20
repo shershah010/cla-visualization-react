@@ -208,7 +208,7 @@ const Search = () => {
           }));
 
           // Add fetched baskets to the current basket state
-          setBaskets([...baskets, ...newBaskets]);
+          setBaskets([...newBaskets]);
         } else {
           console.error("Failed to fetch buckets");
         }
@@ -222,6 +222,11 @@ const Search = () => {
 
   // Function to handle adding a course to the current basket
   const addCourseToBasket = (course) => {
+    // Check if there are no baskets
+    if (baskets.length === 0) {
+      alert('No basket exists. Please create a new basket first.');
+      return;
+    }
     const currentBasket = baskets[currentBasketIndex];
     const courseExists = currentBasket.courses.some(
       (existingCourse) => existingCourse.course_title === course.course_title
@@ -242,18 +247,38 @@ const Search = () => {
   };
 
   const addNewBasket = () => {
-    setBaskets([...baskets, { name: `Basket ${baskets.length + 1}`, courses: [] }]);
+    setBaskets([...baskets, { name: `New Basket`, courses: [] }]);
     setIsRenaming(false);
     startRenamingBasket();
     changeBasket(baskets.length);
   };
 
   const startRenamingBasket = () => {
+    if (baskets.length === 0) {
+      // Initialize a new basket if no basket exists
+      const newBasket = { name: `New Basket`, courses: [] };
+      setBaskets([newBasket]);
+      setCurrentBasketIndex(0);
+      setNewBasketName(newBasket.name);
+    } else {
+      // If baskets exist, proceed with renaming
+      setIsRenaming(true);
+      setNewBasketName("New Basket");
+    }
     setIsRenaming(true);
-    setNewBasketName(baskets[currentBasketIndex].name);
-  };
+  };  
 
   const renameBasket = () => {
+    const nameExists = baskets.some((basket) => basket.name === newBasketName);
+    if (nameExists) {
+      alert(`${newBasketName} already exists. Please choose a different name for this basket.`);
+      return;
+    }
+
+    if (newBasketName==='New Basket') {
+      alert('Please give the your basket a name other than "New Basket"');
+      return;
+    }
     const updatedBaskets = [...baskets];
     updatedBaskets[currentBasketIndex].name = newBasketName;
     setBaskets(updatedBaskets);
@@ -318,9 +343,9 @@ const Search = () => {
           .catch((error) => {
             console.error("Error logging modify-bucket:", error);
           });
-          alert("Bucket modified successfully!");
+          alert("Basket modified successfully!");
         } else {
-          alert("Failed to modify bucket.");
+          alert("Failed to modify basket.");
         }
       } else {
         // Create a new bucket
@@ -353,6 +378,7 @@ const Search = () => {
             console.error("Error logging create-bucket:", error);
           });
           alert("Bucket created successfully!");
+          fetchBuckets(); // Re-fetch the buckets after creation
         } else {
           alert("Failed to create bucket.");
         }
@@ -413,18 +439,24 @@ const Search = () => {
   </div>
 
   {/* Block 3: Courses in Current Basket */}
-<div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-  <h3 style={{ display: 'block', marginBottom: '10px' }}>Courses in {baskets[currentBasketIndex].name}:</h3>
-  <ul>
-    {baskets[currentBasketIndex].courses.map((course, index) => (
-      <li key={index} style={{display: 'block', marginBottom: '10px' }}>
-        {course.course_title}
-        <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
+  <div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  {baskets.length > 0 && baskets[currentBasketIndex] ? (
+    <>
+      <h3 style={{ display: 'block', marginBottom: '10px' }}>Courses in {baskets[currentBasketIndex].name}:</h3>
+      <ul>
+        {baskets[currentBasketIndex].courses.map((course, index) => (
+          <li key={index} style={{display: 'block', marginBottom: '10px' }}>
+            {course.course_title}
+            <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+              Remove
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  ) : (
+    <h3 style={{ display: 'block', marginBottom: '10px' }}>No baskets available. Please create a new basket.</h3>
+  )}
 </div>
 </div>
 
