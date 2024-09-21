@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { Button } from "react-bootstrap";
 import levenshtein from 'fast-levenshtein';
 import Highlighter from 'react-highlight-words';
 import ReactPaginate from 'react-paginate';
@@ -401,9 +402,9 @@ const Search = () => {
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
     <h3 style={{ display: 'block', marginBottom: '10px' }}>Options</h3>
-    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
-    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
-    <button onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</button>
+    <Button className="button" onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</Button>
+    <Button className="button" onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</Button>
+    <Button className="button" onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</Button>
 
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
@@ -413,7 +414,7 @@ const Search = () => {
           onChange={(e) => setNewBasketName(e.target.value)}
           style={{ marginRight: '5px' }}
         />
-        <button onClick={renameBasket}>Save</button>
+        <Button className="button" onClick={renameBasket}>Save</Button>
       </div>
     )}
   </div>
@@ -423,7 +424,8 @@ const Search = () => {
     <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
     <div>
       {baskets.map((basket, index) => (
-        <button 
+        <Button 
+        className="button"
           key={index}
           onClick={() => changeBasket(index)}
           style={{ 
@@ -433,7 +435,7 @@ const Search = () => {
           }}
         >
           {basket.name}
-        </button>
+        </Button>
       ))}
     </div>
   </div>
@@ -447,9 +449,9 @@ const Search = () => {
         {baskets[currentBasketIndex].courses.map((course, index) => (
           <li key={index} style={{display: 'block', marginBottom: '10px' }}>
             {course.course_title}
-            <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+            <Button className="button" onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
               Remove
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
@@ -479,11 +481,12 @@ const Search = () => {
                     textToHighlight={course.course_title}
                   />
                 </h3>
-                <p>Time Load: {course.total.tl}</p>
-                <p>Mental Effort: {course.total.me}</p>
-                <p>Psychological Stress: {course.total.ps}</p>
-                <p>Credit Hours: {course.total.ch}</p>
-                <button onClick={() => addCourseToBasket(course)}>Add to Basket</button>
+                <p>Time Load: {course.total.tl.toFixed(2)}</p>
+                <p>Mental Effort: {course.total.me.toFixed(2)}</p>
+                <p>Psychological Stress: {course.total.ps.toFixed(2)}</p>
+                <p>Combined Course Load: {course.total.cl_combined.toFixed(2)}</p>
+                <p>Credit Hours: {course.total.ch.toFixed(2)}</p> 
+                <Button className="button" style={{ marginBottom: '0px' }} onClick={() => addCourseToBasket(course)}>Add to Basket</Button>
               </Course>
             ))}
           </CourseList>

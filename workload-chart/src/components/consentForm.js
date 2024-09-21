@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import styled from 'styled-components';
 import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
 import { Button } from "react-bootstrap";
