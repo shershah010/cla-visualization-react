@@ -227,6 +227,7 @@ const Search = () => {
       alert('No basket exists. Please create a new basket first.');
       return;
     }
+
     const currentBasket = baskets[currentBasketIndex];
     const courseExists = currentBasket.courses.some(
       (existingCourse) => existingCourse.course_title === course.course_title
@@ -234,6 +235,12 @@ const Search = () => {
 
     if (courseExists) {
       alert('This course is already in the basket.');
+      return;
+    }
+
+    // Check if the basket already contains 15 courses
+    if (currentBasket.courses.length > 15) {
+      alert('You can only add up to 15 courses to a course plan.');
       return;
     }
 
@@ -247,6 +254,10 @@ const Search = () => {
   };
 
   const addNewBasket = () => {
+    if (baskets.length > 10) {
+      alert('You can only have up to 10 semester plans at a time.');
+      return;
+    }
     setBaskets([...baskets, { name: `New Basket`, courses: [] }]);
     setIsRenaming(false);
     startRenamingBasket();
@@ -410,7 +421,11 @@ const Search = () => {
         <input
           type="text"
           value={newBasketName}
-          onChange={(e) => setNewBasketName(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 30) {
+              setNewBasketName(e.target.value);
+            }
+          }}
           style={{ marginRight: '5px' }}
         />
         <button onClick={renameBasket}>Save</button>
