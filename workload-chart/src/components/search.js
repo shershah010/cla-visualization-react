@@ -103,7 +103,7 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courseOffset, setCourseOffset] = useState(0);
 
-  const [baskets, setBaskets] = useState([{ name: 'New Basket', courses: [] }]);
+  const [baskets, setBaskets] = useState([{ name: 'New Plan', courses: [] }]);
   const [currentBasketIndex, setCurrentBasketIndex] = useState(0);
 
   const [isRenaming, setIsRenaming] = useState(false);
@@ -226,7 +226,7 @@ const Search = () => {
   const addCourseToBasket = (course) => {
     // Check if there are no baskets
     if (baskets.length === 0) {
-      alert('No basket exists. Please create a new basket first.');
+      alert('No course plans exists. Please create a new course plan first.');
       return;
     }
 
@@ -236,7 +236,7 @@ const Search = () => {
     );
 
     if (courseExists) {
-      alert('This course is already in the basket.');
+      alert('This course is already in the course plan.');
       return;
     }
 
@@ -272,7 +272,7 @@ const Search = () => {
       alert('You can only have up to 10 semester plans at a time.');
       return;
     }
-    setBaskets([...baskets, { name: `New Basket`, courses: [] }]);
+    setBaskets([...baskets, { name: `New Plan`, courses: [] }]);
     setIsRenaming(false);
     startRenamingBasket();
     changeBasket(baskets.length);
@@ -281,29 +281,30 @@ const Search = () => {
   const startRenamingBasket = () => {
     if (baskets.length === 0) {
       // Initialize a new basket if no basket exists
-      const newBasket = { name: `New Basket`, courses: [] };
+      const newBasket = { name: `New Plan`, courses: [] };
       setBaskets([newBasket]);
       setCurrentBasketIndex(0);
       setNewBasketName(newBasket.name);
     } else {
       // If baskets exist, proceed with renaming
       setIsRenaming(true);
-      setNewBasketName("New Basket");
+      setNewBasketName("New Plan");
     }
     setIsRenaming(true);
   };  
 
   const renameBasket = () => {
-    const nameExists = baskets.some((basket) => basket.name === newBasketName);
-    if (nameExists) {
-      alert(`${newBasketName} already exists. Please choose a different name for this basket.`);
+    if (newBasketName==='New Plan') {
+      alert('Please give the your plan a name other than "New Plan"');
       return;
     }
 
-    if (newBasketName==='New Basket') {
-      alert('Please give the your basket a name other than "New Basket"');
+    const nameExists = baskets.some((basket) => basket.name === newBasketName);
+    if (nameExists) {
+      alert(`${newBasketName} already exists. Please choose a different name for this course plan.`);
       return;
     }
+
     const updatedBaskets = [...baskets];
     updatedBaskets[currentBasketIndex].name = newBasketName;
     setBaskets(updatedBaskets);
@@ -370,9 +371,9 @@ const Search = () => {
           .catch((error) => {
             console.error("Error logging modify-bucket:", error);
           });
-          alert("Basket modified successfully!");
+          alert("Course plan modified successfully!");
         } else {
-          alert("Failed to modify basket.");
+          alert("Failed to modify course plan.");
           return;
         }
       } else {
@@ -405,15 +406,15 @@ const Search = () => {
           .catch((error) => {
             console.error("Error logging create-bucket:", error);
           });
-          alert("Basket created successfully!");
+          alert("Course plan created successfully!");
           fetchBuckets(); // Re-fetch the buckets after creation
         } else {
-          alert("Failed to create basket.");
+          alert("Failed to create course plan.");
         }
       }
     } catch (error) {
-      console.error("Error saving bucket:", error);
-      alert("Error saving basket.");
+      console.error("Error saving course plan:", error);
+      alert("Error saving course plan.");
       return;
     }
     setIsSaved(true); 
@@ -449,8 +450,8 @@ const Search = () => {
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
     <h3 style={{ display: 'block', marginBottom: '10px' }}>Options</h3>
-    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
-    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
+    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Course Plan</button>
+    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Course Plan</button>
     <button 
     onClick={saveBucket}
     style={{
@@ -458,7 +459,7 @@ const Search = () => {
       marginBottom: '10px',
       fontSize: '12pt',
       backgroundColor: isSaved ? '#4CAF50' : '#F44336'
-    }}><b>{isSaved ? 'Plan Up to Date': 'Save Current Basket'}</b></button>
+    }}><b>{isSaved ? 'Plan Up to Date': 'Save Current Plan'}</b></button>
 
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
@@ -479,7 +480,7 @@ const Search = () => {
 
   {/* Block 2: Basket List */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', textAlign: 'center' }}>
-  <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>My Course Plans</h3>
   <div>
     {[...baskets]
       .sort((a, b) => b.time_last_modified - a.time_last_modified) // Sort by time_last_modified in descending order
@@ -516,7 +517,7 @@ const Search = () => {
       </ul>
     </>
   ) : (
-    <h3 style={{ display: 'block', marginBottom: '10px' }}>No baskets available. Please create a new basket.</h3>
+    <h3 style={{ display: 'block', marginBottom: '10px' }}>No course plans available. Please create a new plan.</h3>
   )}
 </div>
 
@@ -539,7 +540,7 @@ const Search = () => {
       })()}
     </div>
   ) : (
-    <p>No courses in this basket.</p>
+    <p>No courses in this plan.</p>
   )}
 </div>
 
@@ -569,7 +570,7 @@ const Search = () => {
                 <p>Mental Effort: {course.total.me}</p>
                 <p>Psychological Stress: {course.total.ps}</p>
                 <p>Credit Hours: {course.total.ch}</p>
-                <button onClick={() => addCourseToBasket(course)}>Add to Basket</button>
+                <button onClick={() => addCourseToBasket(course)}>Add to Course Plan</button>
               </Course>
             ))}
           </CourseList>

@@ -283,9 +283,9 @@ const Graph = () => {
       initialActiveCourses[course.course_title] = true; // Mark all courses as active initially
     });
     if (noCourses) {
-      setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
+      setBucketVizName('No courses to visualize in this course plan: ' + bucket.bucket_name + ' -- Add courses through the Semester Planning tool or delete course plan.');
     } else {
-      setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+      setBucketVizName('Currently visualized course plan: ' + bucket.bucket_name);
 
     }
     setActiveCourses(initialActiveCourses);
