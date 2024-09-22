@@ -94,6 +94,11 @@ const Navbar = () => {
       <NavLink active={activeLink === "/search"} onClick={() => handleNav("/search")}>Semester Planning</NavLink>
       <NavLink active={activeLink === "/tutorial"} onClick={() => handleNav("/tutorial")}>FAQ and Resources</NavLink>
       <Spacer />
+      <p>{globalState.user && (
+          <p>
+            Logged in as: {globalState.user.name}
+          </p>
+        )}</p>
       <Button onClick={handleLogout}>Logout</Button>
     </Container>
   );
