@@ -400,6 +400,24 @@ const Search = () => {
     }
   };
 
+  const calculateCLASums = () => {
+    if (!baskets[currentBasketIndex]) return { tl: 0, me: 0, ps: 0, ch: 0 };
+  
+    return baskets[currentBasketIndex].courses.reduce(
+      (totals, course) => {
+        const selectedCourse = claData.claData.find(c => c.course_title === course.course_title);
+        if (selectedCourse) {
+          totals.tl += selectedCourse.total.tl;
+          totals.me += selectedCourse.total.me;
+          totals.ps += selectedCourse.total.ps;
+          totals.ch += selectedCourse.total.ch;
+        }
+        return totals;
+      },
+      { tl: 0, me: 0, ps: 0, ch: 0 }
+    );
+  };  
+
   return (
     <div>
       <Navbar />
@@ -473,6 +491,31 @@ const Search = () => {
     <h3 style={{ display: 'block', marginBottom: '10px' }}>No baskets available. Please create a new basket.</h3>
   )}
 </div>
+
+{/* Block : Current plan CLA preview */}
+
+<div style={{ flex: '1.25', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>Workload Preview:</h3>
+  {baskets[currentBasketIndex] ? (
+    <div>
+      {(() => {
+        const sums = calculateCLASums();
+        return (
+          <div>
+            <p>Time Load: {sums.tl.toFixed(2)}</p>
+            <p>Mental Effort: {sums.me.toFixed(2)}</p>
+            <p>Psychological Stress: {sums.ps.toFixed(2)}</p>
+            <p>Credit Hours: {sums.ch.toFixed(2)}</p>
+          </div>
+        );
+      })()}
+    </div>
+  ) : (
+    <p>No courses in this basket.</p>
+  )}
+</div>
+
+
 </div>
 
 
