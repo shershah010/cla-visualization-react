@@ -109,6 +109,8 @@ const Search = () => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newBasketName, setNewBasketName] = useState('');
 
+  const [isSaved, setIsSaved] = useState(true);
+
   const endOffset = courseOffset + coursesPerPage;
   const currentSearchCourses = searchCourses.slice(courseOffset, endOffset);
   const pageCount = Math.ceil(searchCourses.length / coursesPerPage);
@@ -247,11 +249,23 @@ const Search = () => {
     const updatedBaskets = [...baskets];
     updatedBaskets[currentBasketIndex].courses.push(course);
     setBaskets(updatedBaskets);
+    setIsSaved(false);
   };
 
   const changeBasket = (index) => {
+    if (!isSaved) {
+      const confirmSwitch = window.confirm(
+        "You have unsaved changes in the current plan. Please save your changes first by confirming this message."
+      );
+      if (!confirmSwitch) {
+        return;
+      } else {
+        saveBucket();
+      }
+    }
     setCurrentBasketIndex(index);
   };
+  
 
   const addNewBasket = () => {
     if (baskets.length > 10) {
@@ -294,6 +308,7 @@ const Search = () => {
     updatedBaskets[currentBasketIndex].name = newBasketName;
     setBaskets(updatedBaskets);
     setIsRenaming(false);
+    setIsSaved(false);
   };
 
   useEffect(() => {
@@ -312,6 +327,7 @@ const Search = () => {
       (existingCourse) => existingCourse.course_title !== course.course_title
     );
     setBaskets(updatedBaskets);
+    setIsSaved(false);
   };
 
   // Save or modify bucket
@@ -357,6 +373,7 @@ const Search = () => {
           alert("Basket modified successfully!");
         } else {
           alert("Failed to modify basket.");
+          return;
         }
       } else {
         // Create a new bucket
@@ -397,7 +414,9 @@ const Search = () => {
     } catch (error) {
       console.error("Error saving bucket:", error);
       alert("Error saving basket.");
+      return;
     }
+    setIsSaved(true); 
   };
 
   const calculateCLASums = () => {
@@ -432,7 +451,14 @@ const Search = () => {
     <h3 style={{ display: 'block', marginBottom: '10px' }}>Options</h3>
     <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
     <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
-    <button onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</button>
+    <button 
+    onClick={saveBucket}
+    style={{
+      display: 'block',
+      marginBottom: '10px',
+      fontSize: '12pt',
+      backgroundColor: isSaved ? '#4CAF50' : '#F44336'
+    }}><b>{isSaved ? 'Plan Up to Date': 'Save Current Basket'}</b></button>
 
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
@@ -453,9 +479,11 @@ const Search = () => {
 
   {/* Block 2: Basket List */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', textAlign: 'center' }}>
-    <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
-    <div>
-      {baskets.map((basket, index) => (
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
+  <div>
+    {[...baskets]
+      .sort((a, b) => b.time_last_modified - a.time_last_modified) // Sort by time_last_modified in descending order
+      .map((basket, index) => (
         <button 
           key={index}
           onClick={() => changeBasket(index)}
@@ -468,8 +496,8 @@ const Search = () => {
           {basket.name}
         </button>
       ))}
-    </div>
   </div>
+</div>
 
   {/* Block 3: Courses in Current Basket */}
   <div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
