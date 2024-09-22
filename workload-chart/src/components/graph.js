@@ -33,14 +33,6 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Input = styled.input`
-  padding: 10px;
-  margin: 10px 0;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
 const Button = styled.button`
   padding: 10px;
   margin: 5px;
@@ -68,12 +60,6 @@ const ToggleButton = styled(Button)`
   }
 `;
 
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-`;
-
 const CourseList = styled.div`
   margin: 10px 0;
   display: flex;
@@ -99,50 +85,6 @@ const ToggleContainer = styled.div`
   margin: 20px 0;
 `;
 
-const processData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-
-  const data = weeks.map((week, index) => {
-    const weekKey = `week${index + 1}`;
-    const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-
-    courses.forEach((course) => {
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl += courseWeekData[weekKey].tl;
-        weekData.me += courseWeekData[weekKey].me;
-        weekData.ps += courseWeekData[weekKey].ps;
-      }
-    });
-
-    return weekData;
-  });
-
-  return data;
-};
-
-const processIndividualData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-  const data = {};
-
-  courses.forEach((course) => {
-    const courseData = weeks.map((week, index) => {
-      const weekKey = `week${index + 1}`;
-      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl = courseWeekData[weekKey].tl;
-        weekData.me = courseWeekData[weekKey].me;
-        weekData.ps = courseWeekData[weekKey].ps;
-      }
-      return weekData;
-    });
-    data[course.course_title] = courseData;
-  });
-
-  return data;
-};
-
 const Graph = () => {
   const [courseBasket, setCourseBasket] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -157,6 +99,52 @@ const Graph = () => {
 
   const [buckets, setBuckets] = useState({});
   const [bucketVizName, setBucketVizName] = useState("The Selected Basket's Name and Courses Will Appear Here");
+
+  const [selectedSemester, setSelectedSemester] = useState("fall24");
+
+  const processData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+  
+    const data = weeks.map((week, index) => {
+      const weekKey = `week${index + 1}`;
+      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+  
+      courses.forEach((course) => {
+        const courseWeekData = course.fall24.find((w) => w[weekKey]);
+        if (courseWeekData) {
+          weekData.tl += courseWeekData[weekKey].tl;
+          weekData.me += courseWeekData[weekKey].me;
+          weekData.ps += courseWeekData[weekKey].ps;
+        }
+      });
+  
+      return weekData;
+    });
+  
+    return data;
+  };
+
+  const processIndividualData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+    const data = {};
+  
+    courses.forEach((course) => {
+      const courseData = weeks.map((week, index) => {
+        const weekKey = `week${index + 1}`;
+        const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+        const courseWeekData = course.fall24.find((w) => w[weekKey]);
+        if (courseWeekData) {
+          weekData.tl = courseWeekData[weekKey].tl;
+          weekData.me = courseWeekData[weekKey].me;
+          weekData.ps = courseWeekData[weekKey].ps;
+        }
+        return weekData;
+      });
+      data[course.course_title] = courseData;
+    });
+  
+    return data;
+  };
 
   const handleRemoveCourse = (course) => {
     setCourseBasket(courseBasket.filter((c) => c !== course));
@@ -326,6 +314,14 @@ const Graph = () => {
             </div> 
           ))}
         </CourseList>
+        <ToggleContainer>
+  <ToggleButton active={selectedSemester === "fall24"} onClick={() => setSelectedSemester("fall24")}>
+    Fall 2024
+  </ToggleButton>
+  <ToggleButton active={selectedSemester === "spring25"} onClick={() => setSelectedSemester("spring25")}>
+    Spring 2025
+  </ToggleButton>
+</ToggleContainer>
         <ResponsiveContainer width="95%" height={400}>
           <LineChart data={showSum ? sumData : []}>
             <CartesianGrid strokeDasharray="3 3" />
