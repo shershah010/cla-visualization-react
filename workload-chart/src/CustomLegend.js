@@ -18,9 +18,10 @@ const CustomLegend = ({ payload }) => {
   };
 
   return (
-    <div className="custom-legend">
+    <div className="custom-legend" style={{margin: '10px'}}>
       {uniqueFilteredPayload.map((entry, index) => (
         <div key={`item-${index}`} style={{ color: entry.color }}>
+          <div style={{width: '15px', height: '15px', backgroundColor: entry.color, display: 'inline-block', marginRight: '10px'}}></div>
           {labelMapping[entry.dataKey] || entry.value}
         </div>
       ))}
