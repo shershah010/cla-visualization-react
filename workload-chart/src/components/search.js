@@ -485,17 +485,16 @@ const Search = () => {
     {[...baskets]
       .sort((a, b) => b.time_last_modified - a.time_last_modified) // Sort by time_last_modified in descending order
       .map((basket, index) => (
-        <button 
+        <button
           key={index}
           onClick={() => changeBasket(index)}
           style={{ 
             fontWeight: currentBasketIndex === index ? 'bold' : 'normal',
             display: 'block',
             marginBottom: '10px'
-          }}
-        >
+          }}>
           {basket.name}
-        </Button>
+        </button>
       ))}
   </div>
 </div>
@@ -509,9 +508,9 @@ const Search = () => {
         {baskets[currentBasketIndex].courses.map((course, index) => (
           <li key={index} style={{display: 'block', marginBottom: '10px' }}>
             {course.course_title}
-            <Button className="button" onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+            <button className="button" onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
               Remove
-            </Button>
+            </button>
           </li>
         ))}
       </ul>
