@@ -258,6 +258,27 @@ const Graph = () => {
   const sumData = processData(courseBasket);
   const individualData = processIndividualData(courseBasket);
 
+  const calculateCLASums = () => {
+    if (!courseBasket.length) return { tl: 0, me: 0, ps: 0, ch: 0, cl_combined: 0 };
+  
+    return courseBasket.reduce(
+      (totals, course) => {
+        const selectedCourse = claData.claData.find(c => c.course_title === course.course_title);
+        if (selectedCourse) {  
+          if (activeCourses[selectedCourse.course_title]) {
+            totals.tl += selectedCourse.total.tl;
+            totals.me += selectedCourse.total.me;
+            totals.ps += selectedCourse.total.ps;
+            totals.cl_combined += selectedCourse.total.cl_combined;
+            totals.ch += selectedCourse.total.ch;
+          }
+        }
+        return totals;
+      },
+      { tl: 0, me: 0, ps: 0, cl_combined: 0, ch: 0 }
+    );
+  };  
+
   return (
     <div>
 
@@ -330,7 +351,10 @@ const Graph = () => {
           ))}
         </CourseList>
 
+        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', justifyContent: 'space-between', alignItems: 'center' }}>
 
+        <div style={{margin: '10px'}}>
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
         { courseBasket.length > 0 ? (
         <ToggleContainer>
   <ToggleButton active={selectedSemester === "fall24"} onClick={() => setSelectedSemester("fall24")}>
@@ -342,6 +366,49 @@ const Graph = () => {
 </ToggleContainer>)  : (
   <div></div>
 )}
+</div></div>
+
+<div style={{margin: '10px'}}>
+  
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
+{ courseBasket.length > 0 ? (
+        <ToggleContainer>
+          <ToggleButton active={showSum} onClick={() => handleGraphToggle(setShowSum, !showSum, "show-sum")}>
+            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
+          </ToggleButton>
+          <ToggleButton active={showTL} onClick={()  => handleGraphToggle(setShowTL, !showTL, "show-tl")}>
+            {showTL ? "Hide Time Load" : "Show Time Load"}
+          </ToggleButton>
+          <ToggleButton active={showME} onClick={() => handleGraphToggle(setShowME, !showME, "show-me")}>
+            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
+          </ToggleButton>
+          <ToggleButton active={showPS} onClick={() =>  handleGraphToggle(setShowPS, !showPS, "show-ps")}>
+            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
+          </ToggleButton>
+        </ToggleContainer> ) : (<div></div>)}
+        </div>
+</div>
+
+<div style={{margin: '10px'}}>
+  {/* Display a preview of the current basket totals */}
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
+  {courseBasket.length > 0 ? (
+      <>    
+      {/* 
+        <p><strong>Time Load:</strong> {calculateCLASums().tl.toFixed(2)}</p>
+        <p><strong>Mental Effort:</strong> {calculateCLASums().me.toFixed(2)}</p>
+        <p><strong>Psychological Stress :</strong> {calculateCLASums().ps.toFixed(2)}</p>
+        <p>-------------------------------------------</p>
+  */}
+        <p><strong>Predicted Course Load:</strong> {calculateCLASums().cl_combined.toFixed(2)}</p>
+        <p><strong>Credit Hours:</strong> {calculateCLASums().ch.toFixed(2)}</p>
+      </>
+    ) : (
+      <p></p>
+    )}
+  </div>
+</div>
+</div>
 
 { courseBasket.length > 0 ? (
         <ResponsiveContainer width="95%" height={400}>
@@ -349,7 +416,7 @@ const Graph = () => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
             <YAxis />
-            <Tooltip />
+            <Tooltip formatter={(value) => value.toFixed(2)} />
             <Legend content={<CustomLegend />} />
             {showSum ? (
               <>
@@ -358,7 +425,7 @@ const Graph = () => {
                 )}
                 {showME && courseBasket.some(course => activeCourses[course.course_title]) && (
                   <Line type="monotone" dataKey="me" stroke="#82ca9d" />
-                )}å¬
+                )}
                 {showPS && courseBasket.some(course => activeCourses[course.course_title]) && (
                   <Line type="monotone" dataKey="ps" stroke="#ffc658" />
                 )}
@@ -397,21 +464,7 @@ const Graph = () => {
         </ResponsiveContainer>) : (
   <div></div>
 )}
-  { courseBasket.length > 0 ? (
-        <ToggleContainer>
-          <ToggleButton active={showSum} onClick={() => handleGraphToggle(setShowSum, !showSum, "show-sum")}>
-            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
-          </ToggleButton>
-          <ToggleButton active={showTL} onClick={()  => handleGraphToggle(setShowTL, !showTL, "show-tl")}>
-            {showTL ? "Hide Time Load" : "Show Time Load"}
-          </ToggleButton>
-          <ToggleButton active={showME} onClick={() => handleGraphToggle(setShowME, !showME, "show-me")}>
-            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
-          </ToggleButton>
-          <ToggleButton active={showPS} onClick={() =>  handleGraphToggle(setShowPS, !showPS, "show-ps")}>
-            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
-          </ToggleButton>
-        </ToggleContainer> ) : (<div></div>)}
+  
       </Container>
     </div>
   );

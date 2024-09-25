@@ -93,18 +93,24 @@ const FetchBucket = ({ user_id, onBucketsFetched, onBucketDeleted, onVisualizeBu
   }, [user_id]);
 
   return (
-    <div>
-      <h3 style={{display: 'block', marginBottom: '10px'}}>My Semester Plans</h3>
+    
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '20px' }}>
+      <h2 style={{display: 'block', marginBottom: '10px'}}>My Semester Plans</h2>
       {/* Display fetched buckets */}
       {Object.keys(buckets).length > 0 ? (
+      
       <ul>
           {[...Object.entries(buckets)]
             .sort(([, a], [, b]) => b.time_last_modified - a.time_last_modified) // Sort by time_last_modified (descending)
             .map(([id, bucket]) => (
               <li key={id} style={{ display: 'block', marginBottom: '10px' }}>
-                <strong style={{ display: 'block', marginBottom: '10px' }}>{bucket.bucket_name}</strong>
-                <button onClick={() => onVisualizeBucket(id, bucket)}>Visualize</button>
-                <button onClick={() => handleDeleteBucket(id)}>Delete</button>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> 
+    <strong>{bucket.bucket_name}</strong> 
+    <div>
+      <button style={{ marginLeft: '10px' }} onClick={() => onVisualizeBucket(id, bucket)}>Visualize</button>
+      <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteBucket(id)}>Delete</button>
+    </div>
+</div>
               </li>
             ))}
         </ul>
