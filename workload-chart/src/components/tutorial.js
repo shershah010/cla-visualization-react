@@ -10,8 +10,22 @@ const Tutorial = () => {
     <div>
       <Navbar />
       <Container>
-      <h1>Guide to Course Load Analytics</h1>
 
+      <h2>Platform Tutorial</h2>
+
+      <iframe
+        width="800"
+        height="500"
+        src="https://www.youtube.com/embed/4PQVq8lgBzg?rel=0"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      ></iframe>
+
+<h2>Guide to Course Load Analytics</h2>
+
+<details>
+    <summary><b>What's the Origin Story of Course Load Analytics?</b></summary>
       <p>This platform provides AI-based predictions of course workload, which we call “Course Load Analytics.”
 </p><p>Course load analytics are machine-learned predictions trained on data from past students at your institution (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).
 These students rated the workload of courses they took every week and at the end of the semester.
@@ -26,11 +40,11 @@ Course Load Analytics break down into three dimensions, in line with common defi
 </li><li><b>Mental effort</b> refers to the concentration and attention required for course completion.
 </li><li><b>Psychological</b> stress refers to the confusion, frustration, and anxiety during the completion of coursework.
 </li></ul>
-<p><i>It is important to remember that all estimates represent past data and the average student's experience at your institution.
-Your personal experience of workload might differ, depending on several personal factors.</i>
+<p><i><b>It is important to remember that all estimates represent past data and the average student's experience at your institution.
+Your personal experience of workload might differ, depending on several personal factors.</b></i>
 </p></p>
+</details>
 
-<h2>Course Load Analytics Explained</h2>
 <details>
     <summary><b>What do the different Course Load Analytics predictions mean?</b></summary>
     

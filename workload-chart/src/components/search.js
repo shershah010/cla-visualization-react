@@ -572,7 +572,7 @@ const Search = () => {
         <div>
           <Title>Search</Title>
 
-          <h3>Search for courses by entering text below:</h3>
+          <h3>Search for courses by entering keywords below:</h3>
           <Input type="text" value={searchTerm} onChange={search}></Input>
 
           <CourseList>
