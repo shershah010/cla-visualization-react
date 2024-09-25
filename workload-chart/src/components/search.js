@@ -169,17 +169,30 @@ const Search = () => {
         console.error("Error logging search:", error);
       });
 
-    const courses = claData["claData"]
-      .map(course => [
-        course,
-        Math.min(...course["course_title"]
-          .toLowerCase()
-          .split(" ")
-          .map(word => levenshtein.get(word, searchTerm.toLowerCase()))
-        )
-      ])
-      .sort((a, b) => a[1] - b[1])
-      .map(a => a[0]);
+      const courses = claData["claData"]
+        .map(course => {
+          const searchWords = searchTerm.toLowerCase().split(" ");
+          
+          const minDistances = searchWords.map(searchWord => {
+            return Math.min(...course["course_title"]
+              .toLowerCase()
+              .split(" ")
+              .map(word => levenshtein.get(word, searchWord)));
+          });
+
+          // Use the average of the minimum distances
+          const averageMinDistance = minDistances.length > 0 
+            ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
+            : 0;
+
+          return [course, averageMinDistance];
+        })
+        .sort((a, b) => a[1] - b[1])
+        .map(a => a[0]);
+
+    
+
+    
 
     setSearchCourses(courses);
     setCourseOffset(0);
