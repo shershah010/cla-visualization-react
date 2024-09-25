@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { Button } from "react-bootstrap";
 import levenshtein from 'fast-levenshtein';
 import Highlighter from 'react-highlight-words';
 import ReactPaginate from 'react-paginate';
@@ -460,7 +461,6 @@ const Search = () => {
       fontSize: '12pt',
       backgroundColor: isSaved ? '#4CAF50' : '#F44336'
     }}><b>{isSaved ? 'Plan Up to Date': 'Save Current Plan'}</b></button>
-
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
         <input
@@ -473,7 +473,7 @@ const Search = () => {
           }}
           style={{ marginRight: '5px' }}
         />
-        <button onClick={renameBasket}>Save</button>
+        <Button className="button" onClick={renameBasket}>Save</Button>
       </div>
     )}
   </div>
@@ -495,7 +495,7 @@ const Search = () => {
           }}
         >
           {basket.name}
-        </button>
+        </Button>
       ))}
   </div>
 </div>
@@ -509,9 +509,9 @@ const Search = () => {
         {baskets[currentBasketIndex].courses.map((course, index) => (
           <li key={index} style={{display: 'block', marginBottom: '10px' }}>
             {course.course_title}
-            <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+            <Button className="button" onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
               Remove
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
@@ -566,10 +566,11 @@ const Search = () => {
                     textToHighlight={course.course_title}
                   />
                 </h3>
-                <p>Time Load: {course.total.tl}</p>
-                <p>Mental Effort: {course.total.me}</p>
-                <p>Psychological Stress: {course.total.ps}</p>
-                <p>Credit Hours: {course.total.ch}</p>
+                <p>Time Load: {course.total.tl.toFixed(2)}</p>
+                <p>Mental Effort: {course.total.me.toFixed(2)}</p>
+                <p>Psychological Stress: {course.total.ps.toFixed(2)}</p>
+                <p>Combined Course Load: {course.total.cl_combined.toFixed(2)}</p>
+                <p>Credit Hours: {course.total.ch.toFixed(2)}</p> 
                 <button onClick={() => addCourseToBasket(course)}>Add to Course Plan</button>
               </Course>
             ))}
