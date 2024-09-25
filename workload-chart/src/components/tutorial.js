@@ -368,6 +368,25 @@ Your personal experience of workload might differ, depending on several personal
     </ul>
 </details>
 
+<details>
+    <summary><b>How has CLA been validated?</b></summary>
+    <p>
+    In creating workload predictions, we replicated machine learning methods used for training, curation, and validation previously performed at UC Berkeley (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>), 
+    We confirmed significant improvements in predictive accuracy on a holdout test set generalizing to new courses for each subdimension compared to a mean prediction baseline, with mean abolute errors of about 0.5 scale points for predictions. These improvements correspond to about 20% error reduction to baseline and improvements comparable to those reported in the original validation study of CLA.
+    In addition, we replicated findings reported in <a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a> regarding variance explained in student workload perceptions at this institution as one form of validation of our engineered LMS and enrollment record features used for predictive modeling.
+    Finally, we validated weekly predictions of workload sourced from 40 students through correlations with end-of-semester workload perceptions of about 60 students. Average weekly predictions of courses correlated with those semester perceptions by an average of 0.3, indicating satisfactory validity.
+    </p>
+</details>
+
+<details>
+    <summary><b>How does not using the LMS in a specific course affect workload predictions?</b></summary>
+    <p>
+    In scenarios where LMS data is unavailable, workload predictions are still feasible but rely more heavily on alternative data sources, such as historical enrollment records. Control variables of LMS availability used in modeling help adjust for the lack of LMS interaction data by incorporating institutional trends in workload expectations, rather than behaviors encoded in LMS data.
+    We expect that the predictive models become more agnostic to course-level fluctuations throughout the term, and instead, predicts weekly trends based on broader institutional trends and averages. 
+    Hence, without LMS data, we expect workload fluctuations to reflect institutional averages more closely, with less sensitivity to individual weekly deviations. Thus, the predictions would provide a general overview of workload demands for a given course, but might lack some of the granularity provided by LMS activity data seen in other courses.
+    </p>
+</details>
+
 <h2>References</h2>
 <ul>
     <li><a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers, C., & Pardos, Z. A. (2023). Insights into undergraduate pathways using course load analytics. In LAK23: 13th International Learning Analytics and Knowledge Conference (pp. 219-229).</a></li>
