@@ -411,13 +411,28 @@ const Graph = () => {
 </div>
 
 { courseBasket.length > 0 ? (
-        <ResponsiveContainer width="95%" height={400}>
+        <ResponsiveContainer width="95%" height={450}>
           <LineChart data={showSum ? sumData : []}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
+            <XAxis angle={-45} textAnchor="end" dataKey="name" allowDuplicatedCategory={false} interval={0} />
             <YAxis />
-            <Tooltip formatter={(value) => value.toFixed(2)} />
-            <Legend content={<CustomLegend />} />
+            <Tooltip 
+                formatter={(value, name, props) => {
+                  if (name === "tl") {
+                    return [`${value.toFixed(2)}`, "Time Load"];
+                  } else if (name === "me") {
+                    return [`${value.toFixed(2)}`, "Mental Effort"];
+                  } else if (name === "ps") {
+                    return [`${value.toFixed(2)}`, "Psychological Stress"];
+                  }
+                  return [value.toFixed(2), name];
+                }}
+                labelFormatter={(label) => {
+                  const currentCourse = courseBasket.find(course => course.course_title === label);
+                  return currentCourse ? currentCourse.course_title : label;
+                }}
+              />
+            <Legend content={<CustomLegend />} wrapperStyle={{ paddingTop: '40px' }} />
             {showSum ? (
               <>
                 {showTL && courseBasket.some(course => activeCourses[course.course_title]) && (

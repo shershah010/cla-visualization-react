@@ -190,10 +190,6 @@ const Search = () => {
         .sort((a, b) => a[1] - b[1])
         .map(a => a[0]);
 
-    
-
-    
-
     setSearchCourses(courses);
     setCourseOffset(0);
   };
