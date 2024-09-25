@@ -33,14 +33,6 @@ const Title = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Input = styled.input`
-  padding: 10px;
-  margin: 10px 0;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
 const Button = styled.button`
   padding: 10px;
   margin: 5px;
@@ -68,12 +60,6 @@ const ToggleButton = styled(Button)`
   }
 `;
 
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-`;
-
 const CourseList = styled.div`
   margin: 10px 0;
   display: flex;
@@ -99,50 +85,6 @@ const ToggleContainer = styled.div`
   margin: 20px 0;
 `;
 
-const processData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-
-  const data = weeks.map((week, index) => {
-    const weekKey = `week${index + 1}`;
-    const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-
-    courses.forEach((course) => {
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl += courseWeekData[weekKey].tl;
-        weekData.me += courseWeekData[weekKey].me;
-        weekData.ps += courseWeekData[weekKey].ps;
-      }
-    });
-
-    return weekData;
-  });
-
-  return data;
-};
-
-const processIndividualData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-  const data = {};
-
-  courses.forEach((course) => {
-    const courseData = weeks.map((week, index) => {
-      const weekKey = `week${index + 1}`;
-      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl = courseWeekData[weekKey].tl;
-        weekData.me = courseWeekData[weekKey].me;
-        weekData.ps = courseWeekData[weekKey].ps;
-      }
-      return weekData;
-    });
-    data[course.course_title] = courseData;
-  });
-
-  return data;
-};
-
 const Graph = () => {
   const [courseBasket, setCourseBasket] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,7 +98,59 @@ const Graph = () => {
   const itemsPerPage = 5;
 
   const [buckets, setBuckets] = useState({});
-  const [bucketVizName, setBucketVizName] = useState("The Selected Basket's Name and Courses Will Appear Here");
+  const [bucketVizName, setBucketVizName] = useState("");
+
+  const [selectedSemester, setSelectedSemester] = useState("fall24");
+
+  const [activeCourses, setActiveCourses] = useState({});
+
+  const processData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+  
+    const data = weeks.map((week, index) => {
+      const weekKey = `week${index + 1}`;
+      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+  
+      courses.forEach((course) => {
+        // Only include active courses in the sum
+        if (activeCourses[course.course_title]) {
+          const courseWeekData = course.fall24.find((w) => w[weekKey]);
+          if (courseWeekData) {
+            weekData.tl += courseWeekData[weekKey].tl;
+            weekData.me += courseWeekData[weekKey].me;
+            weekData.ps += courseWeekData[weekKey].ps;
+          }
+        }
+      });
+  
+      return weekData;
+    });
+  
+    return data;
+  };
+  
+
+  const processIndividualData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+    const data = {};
+  
+    courses.forEach((course) => {
+      const courseData = weeks.map((week, index) => {
+        const weekKey = `week${index + 1}`;
+        const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+        const courseWeekData = course.fall24.find((w) => w[weekKey]);
+        if (courseWeekData) {
+          weekData.tl = courseWeekData[weekKey].tl;
+          weekData.me = courseWeekData[weekKey].me;
+          weekData.ps = courseWeekData[weekKey].ps;
+        }
+        return weekData;
+      });
+      data[course.course_title] = courseData;
+    });
+  
+    return data;
+  };
 
   const handleRemoveCourse = (course) => {
     setCourseBasket(courseBasket.filter((c) => c !== course));
@@ -272,12 +266,6 @@ const Graph = () => {
       <Container>
         
 
-        {globalState.user && (
-          <Title>
-            Hi {globalState.user.name}, here's your Weekly Workload Chart
-          </Title>
-        )}
-
 <FetchBucket 
   user_id={globalState?.user?.user_id} 
   onBucketsFetched={(buckets) => setBuckets(buckets)} 
@@ -290,12 +278,17 @@ const Graph = () => {
     const coursesToVisualize = claData.claData.filter((course) => 
       courseIds.includes(course.course_title)
     );
+    const initialActiveCourses = {};
+    coursesToVisualize.forEach((course) => {
+      initialActiveCourses[course.course_title] = true; // Mark all courses as active initially
+    });
     if (noCourses) {
-      setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
+      setBucketVizName('No courses to visualize in this course plan: ' + bucket.bucket_name + ' -- Add courses through the Semester Planning tool or delete course plan.');
     } else {
-      setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+      setBucketVizName('Currently visualized course plan: ' + bucket.bucket_name);
 
     }
+    setActiveCourses(initialActiveCourses);
     setCourseBasket(coursesToVisualize);
 
     const logObject = {
@@ -322,10 +315,35 @@ const Graph = () => {
           {courseBasket.map((course) => (
             <div key={course.course_title}>
               {course.course_title}
-              <Button onClick={() => handleRemoveCourse(course)}>Remove</Button>
-            </div> 
+              <ToggleButton 
+                active={activeCourses[course.course_title]} 
+                onClick={() => {
+                  setActiveCourses(prevState => ({
+                    ...prevState,
+                    [course.course_title]: !prevState[course.course_title]
+                  }));
+                }}
+              >
+                {activeCourses[course.course_title] ? "Hide" : "Show"}
+              </ToggleButton>
+            </div>
           ))}
         </CourseList>
+
+
+        { courseBasket.length > 0 ? (
+        <ToggleContainer>
+  <ToggleButton active={selectedSemester === "fall24"} onClick={() => setSelectedSemester("fall24")}>
+    Fall 2024
+  </ToggleButton>
+  <ToggleButton active={selectedSemester === "spring25"} onClick={() => setSelectedSemester("spring25")}>
+    Spring 2025
+  </ToggleButton>
+</ToggleContainer>)  : (
+  <div></div>
+)}
+
+{ courseBasket.length > 0 ? (
         <ResponsiveContainer width="95%" height={400}>
           <LineChart data={showSum ? sumData : []}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -335,14 +353,20 @@ const Graph = () => {
             <Legend content={<CustomLegend />} />
             {showSum ? (
               <>
-                {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}
-                {showME && <Line type="monotone" dataKey="me" stroke="#82ca9d" />}
-                {showPS && <Line type="monotone" dataKey="ps" stroke="#ffc658" />}
+                {showTL && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="tl" stroke="#8884d8" />
+                )}
+                {showME && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="me" stroke="#82ca9d" />
+                )}å¬
+                {showPS && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="ps" stroke="#ffc658" />
+                )}
               </>
             ) : (
               courseBasket.map((course) => (
                 <>
-                  {showTL && (
+                  {activeCourses[course.course_title] && showTL && (
                     <Line
                       type="monotone"
                       dataKey="tl"
@@ -350,7 +374,7 @@ const Graph = () => {
                       stroke="#8884d8"
                     />
                   )}
-                  {showME && (
+                  {activeCourses[course.course_title] && showME && (
                     <Line
                       type="monotone"
                       dataKey="me"
@@ -358,7 +382,7 @@ const Graph = () => {
                       stroke="#82ca9d"
                     />
                   )}
-                  {showPS && (
+                  {activeCourses[course.course_title] && showPS && (
                     <Line
                       type="monotone"
                       dataKey="ps"
@@ -370,7 +394,10 @@ const Graph = () => {
               ))
             )}
           </LineChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>) : (
+  <div></div>
+)}
+  { courseBasket.length > 0 ? (
         <ToggleContainer>
           <ToggleButton active={showSum} onClick={() => handleGraphToggle(setShowSum, !showSum, "show-sum")}>
             {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
@@ -384,7 +411,7 @@ const Graph = () => {
           <ToggleButton active={showPS} onClick={() =>  handleGraphToggle(setShowPS, !showPS, "show-ps")}>
             {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
           </ToggleButton>
-        </ToggleContainer>
+        </ToggleContainer> ) : (<div></div>)}
       </Container>
     </div>
   );
