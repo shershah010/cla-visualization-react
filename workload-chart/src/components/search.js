@@ -300,9 +300,18 @@ const Search = () => {
       return;
     }
 
-    const nameExists = baskets.some((basket) => basket.name === newBasketName);
+    const alphanumericWithSymbolsRegex = /^(?=.*[a-zA-Z0-9])[a-zA-Z0-9 _-]+$/;
+
+    if (!alphanumericWithSymbolsRegex.test(newBasketName)) {
+      alert('Your course plan name must contain at least one alphanumerical character and can only include letters, numbers, spaces, dashes, and underscores');
+      return;
+    }
+
+    const nameExists = baskets.some((basket) => 
+      basket.name.replace(/\s+/g, '').toLowerCase() === newBasketName.replace(/\s+/g, '').toLowerCase()
+    );
     if (nameExists) {
-      alert(`${newBasketName} already exists. Please choose a different name for this course plan.`);
+      alert(`${newBasketName} or a very similar name already exists. Please choose a different name for this course plan.`);
       return;
     }
 
@@ -431,11 +440,12 @@ const Search = () => {
           totals.tl += selectedCourse.total.tl;
           totals.me += selectedCourse.total.me;
           totals.ps += selectedCourse.total.ps;
+          totals.cl_combined += selectedCourse.total.cl_combined;
           totals.ch += selectedCourse.total.ch;
         }
         return totals;
       },
-      { tl: 0, me: 0, ps: 0, ch: 0 }
+      { tl: 0, me: 0, ps: 0, cl_combined: 0, ch: 0 }
     );
   };  
 
@@ -473,7 +483,7 @@ const Search = () => {
           }}
           style={{ marginRight: '5px' }}
         />
-        <Button className="button" onClick={renameBasket}>Save</Button>
+        <button onClick={renameBasket}>Save</button>
       </div>
     )}
   </div>
@@ -508,7 +518,7 @@ const Search = () => {
         {baskets[currentBasketIndex].courses.map((course, index) => (
           <li key={index} style={{display: 'block', marginBottom: '10px' }}>
             {course.course_title}
-            <button className="button" onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+            <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
               Remove
             </button>
           </li>
@@ -533,6 +543,8 @@ const Search = () => {
             <p>Time Load: {sums.tl.toFixed(2)}</p>
             <p>Mental Effort: {sums.me.toFixed(2)}</p>
             <p>Psychological Stress: {sums.ps.toFixed(2)}</p>
+            <p>-------------------------------------------</p>
+            <p>Predicted Course Load: {sums.cl_combined.toFixed(2)}</p>
             <p>Credit Hours: {sums.ch.toFixed(2)}</p>
           </div>
         );
@@ -568,7 +580,7 @@ const Search = () => {
                 <p>Time Load: {course.total.tl.toFixed(2)}</p>
                 <p>Mental Effort: {course.total.me.toFixed(2)}</p>
                 <p>Psychological Stress: {course.total.ps.toFixed(2)}</p>
-                <p>Combined Course Load: {course.total.cl_combined.toFixed(2)}</p>
+                <p>Predicted Course Load: {course.total.cl_combined.toFixed(2)}</p>
                 <p>Credit Hours: {course.total.ch.toFixed(2)}</p> 
                 <button onClick={() => addCourseToBasket(course)}>Add to Course Plan</button>
               </Course>
