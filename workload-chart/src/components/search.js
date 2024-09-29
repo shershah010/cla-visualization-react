@@ -181,9 +181,11 @@ const Search = () => {
           });
 
           // Use the average of the minimum distances
-          const averageMinDistance = minDistances.length > 0 
-            ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
-            : 0;
+          const averageMinDistance = Math.min(...minDistances);
+          
+          // minDistances.length > 0 
+          //   ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
+          //   : 0;
 
           return [course, averageMinDistance];
         })
@@ -581,7 +583,7 @@ const Search = () => {
                 <h3>
                   <Highlighter
                     highlightClassName="highlighter"
-                    searchWords={[searchTerm]}
+                    searchWords={searchTerm.split(" ")}
                     autoEscape={true}
                     textToHighlight={course.course_title}
                   />
