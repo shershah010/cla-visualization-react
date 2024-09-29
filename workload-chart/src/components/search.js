@@ -149,9 +149,7 @@ const Search = () => {
     }
   };
 
-  const search = (e) => {
-    const searchTerm = e.target.value;
-    setSearchTerm(searchTerm);
+  const search = (searchTerm) => {
 
     const logObject = {
       user_id: globalState.user.user_id,
@@ -575,7 +573,17 @@ const Search = () => {
           <Title>Search</Title>
 
           <h3>Search for courses by entering keywords below:</h3>
-          <Input type="text" value={searchTerm} onChange={search}></Input>
+          <Input 
+            type="text" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                search(searchTerm);
+              }
+            }}
+          />
+          <Button onClick={() => search(searchTerm)}>Search</Button>
 
           <CourseList>
             {currentSearchCourses.map(course => (
