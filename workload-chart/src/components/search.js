@@ -178,15 +178,16 @@ const Search = () => {
               .map(word => levenshtein.get(word, searchWord)));
           });
 
-          // Use the average of the minimum distances
-          const averageMinDistance = Math.min(...minDistances);
+          // Use the min of the minimum distances
+          const minMinDistance = Math.min(...minDistances);
           
-          // minDistances.length > 0 
-          //   ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
-          //   : 0;
+          const averageMinDistance = minDistances.length > 0 
+            ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
+            : 0;
 
-          return [course, averageMinDistance];
+          return [course, minMinDistance, averageMinDistance];
         })
+        .sort((a, b) => a[2] - b[2])
         .sort((a, b) => a[1] - b[1])
         .map(a => a[0]);
 
