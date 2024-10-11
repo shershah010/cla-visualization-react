@@ -170,19 +170,17 @@ const Search = () => {
       const courses = claData["claData"]
         .map(course => {
           const searchWords = searchTerm.toLowerCase().split(" ");
-          
-          const minDistances = searchWords.map(searchWord => {
-            return Math.min(...course["course_title"]
-              .toLowerCase()
-              .split(" ")
-              .map(word => levenshtein.get(word, searchWord)));
+          const courseWords = course["course_title"].toLowerCase().split(" ")
+
+          const minDistances = courseWords.map(courseWord => {
+            return Math.min(...searchWords.map(searchWord => courseWord.includes(searchWord) ? 0 : levenshtein.get(searchWord, courseWord)));
           });
 
           // Use the min of the minimum distances
           const minMinDistance = Math.min(...minDistances);
           
           const averageMinDistance = minDistances.length > 0 
-            ? minDistances.reduce((acc, distance) => acc + distance, 0) / minDistances.length 
+            ? minDistances.reduce((acc, distance) => acc + distance, 0) / courseWords.length 
             : 0;
 
           return [course, minMinDistance, averageMinDistance];
