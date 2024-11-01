@@ -10,8 +10,22 @@ const Tutorial = () => {
     <div>
       <Navbar />
       <Container>
-      <h1>Guide to Course Load Analytics</h1>
 
+      <h2>Platform Tutorial</h2>
+
+      <iframe
+        width="800"
+        height="500"
+        src="https://www.youtube.com/embed/4PQVq8lgBzg?rel=0"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      ></iframe>
+
+<h2>Guide to Course Load Analytics</h2>
+
+<details>
+    <summary><b>What's the Origin Story of Course Load Analytics?</b></summary>
       <p>This platform provides AI-based predictions of course workload, which we call “Course Load Analytics.”
 </p><p>Course load analytics are machine-learned predictions trained on data from past students at your institution (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).
 These students rated the workload of courses they took every week and at the end of the semester.
@@ -26,11 +40,11 @@ Course Load Analytics break down into three dimensions, in line with common defi
 </li><li><b>Mental effort</b> refers to the concentration and attention required for course completion.
 </li><li><b>Psychological</b> stress refers to the confusion, frustration, and anxiety during the completion of coursework.
 </li></ul>
-<p><i>It is important to remember that all estimates represent past data and the average student's experience at your institution.
-Your personal experience of workload might differ, depending on several personal factors.</i>
+<p><i><b>It is important to remember that all estimates represent past data and the average student's experience at your institution.
+Your personal experience of workload might differ, depending on several personal factors.</b></i>
 </p></p>
+</details>
 
-<h2>Course Load Analytics Explained</h2>
 <details>
     <summary><b>What do the different Course Load Analytics predictions mean?</b></summary>
     
@@ -352,6 +366,25 @@ Your personal experience of workload might differ, depending on several personal
         <li>Courses with more prerequisites tend to have higher predicted workloads (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).</li>
         <li>Student's first semester at the university is among their highest load semesters, contrary to credit hour-based analysis, which suggests it is among the lowest (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).</li>
     </ul>
+</details>
+
+<details>
+    <summary><b>How has CLA been validated?</b></summary>
+    <p>
+    In creating workload predictions, we replicated machine learning methods used for training, curation, and validation previously performed at UC Berkeley (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>), 
+    We confirmed significant improvements in predictive accuracy on a holdout test set generalizing to new courses for each subdimension compared to a mean prediction baseline, with mean abolute errors of about 0.5 scale points for predictions. These improvements correspond to about 20% error reduction to baseline and improvements comparable to those reported in the original validation study of CLA.
+    In addition, we replicated findings reported in <a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a> regarding variance explained in student workload perceptions at this institution as one form of validation of our engineered LMS and enrollment record features used for predictive modeling.
+    Finally, we validated weekly predictions of workload sourced from 40 students through correlations with end-of-semester workload perceptions of about 60 students. Average weekly predictions of courses correlated with those semester perceptions by an average of 0.3, indicating satisfactory validity.
+    </p>
+</details>
+
+<details>
+    <summary><b>How does not using the LMS in a specific course affect workload predictions?</b></summary>
+    <p>
+    In scenarios where LMS data is unavailable, workload predictions are still feasible but rely more heavily on alternative data sources, such as historical enrollment records. Control variables of LMS availability used in modeling help adjust for the lack of LMS interaction data by incorporating institutional trends in workload expectations, rather than behaviors encoded in LMS data.
+    We expect that the predictive models become more agnostic to course-level fluctuations throughout the term, and instead, predicts weekly trends based on broader institutional trends and averages. 
+    Hence, without LMS data, we expect workload fluctuations to reflect institutional averages more closely, with less sensitivity to individual weekly deviations. Thus, the predictions would provide a general overview of workload demands for a given course, but might lack some of the granularity provided by LMS activity data seen in other courses.
+    </p>
 </details>
 
 <h2>References</h2>

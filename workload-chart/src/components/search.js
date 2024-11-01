@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { Button } from "react-bootstrap";
 import levenshtein from 'fast-levenshtein';
 import Highlighter from 'react-highlight-words';
 import ReactPaginate from 'react-paginate';
@@ -8,6 +9,7 @@ import { useGlobalState } from './globalState';
 import { useNavigate } from 'react-router';
 import { AWS_ENDPOINT } from '../config';
 import Navbar from './navbar';
+import axios from 'axios';
 
 const Container = styled.div`
   display: flex;
@@ -102,11 +104,13 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courseOffset, setCourseOffset] = useState(0);
 
-  const [baskets, setBaskets] = useState([{ name: 'New Basket', courses: [] }]);
+  const [baskets, setBaskets] = useState([{ name: 'New Plan', courses: [] }]);
   const [currentBasketIndex, setCurrentBasketIndex] = useState(0);
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newBasketName, setNewBasketName] = useState('');
+
+  const [isSaved, setIsSaved] = useState(true);
 
   const endOffset = courseOffset + coursesPerPage;
   const currentSearchCourses = searchCourses.slice(courseOffset, endOffset);
@@ -145,21 +149,45 @@ const Search = () => {
     }
   };
 
-  const search = (e) => {
-    const searchTerm = e.target.value;
-    setSearchTerm(searchTerm);
+  const search = (searchTerm) => {
 
-    const courses = claData["claData"]
-      .map(course => [
-        course,
-        Math.min(...course["course_title"]
-          .toLowerCase()
-          .split(" ")
-          .map(word => levenshtein.get(word, searchTerm.toLowerCase()))
-        )
-      ])
-      .sort((a, b) => a[1] - b[1])
-      .map(a => a[0]);
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "search",
+      value: searchTerm,
+    }
+
+    axios
+      .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error logging search:", error);
+      });
+
+      const courses = claData["claData"]
+        .map(course => {
+          const searchWords = searchTerm.toLowerCase().split(" ");
+          const courseWords = course["course_title"].toLowerCase().split(" ")
+
+          const minDistances = courseWords.map(courseWord => {
+            return Math.min(...searchWords.map(searchWord => courseWord.includes(searchWord) ? 0 : levenshtein.get(searchWord, courseWord)));
+          });
+
+          // Use the min of the minimum distances
+          const minMinDistance = Math.min(...minDistances);
+          
+          const averageMinDistance = minDistances.length > 0 
+            ? minDistances.reduce((acc, distance) => acc + distance, 0) / courseWords.length 
+            : 0;
+
+          return [course, minMinDistance, averageMinDistance];
+        })
+        .sort((a, b) => a[2] - b[2])
+        .sort((a, b) => a[1] - b[1])
+        .map(a => a[0]);
 
     setSearchCourses(courses);
     setCourseOffset(0);
@@ -191,7 +219,7 @@ const Search = () => {
           }));
 
           // Add fetched baskets to the current basket state
-          setBaskets([...baskets, ...newBaskets]);
+          setBaskets([...newBaskets]);
         } else {
           console.error("Failed to fetch buckets");
         }
@@ -205,42 +233,101 @@ const Search = () => {
 
   // Function to handle adding a course to the current basket
   const addCourseToBasket = (course) => {
+    // Check if there are no baskets
+    if (baskets.length === 0) {
+      alert('No course plans exists. Please create a new course plan first.');
+      return;
+    }
+
     const currentBasket = baskets[currentBasketIndex];
     const courseExists = currentBasket.courses.some(
       (existingCourse) => existingCourse.course_title === course.course_title
     );
 
     if (courseExists) {
-      alert('This course is already in the basket.');
+      alert('This course is already in the course plan.');
+      return;
+    }
+
+    // Check if the basket already contains 15 courses
+    if (currentBasket.courses.length > 15) {
+      alert('You can only add up to 15 courses to a course plan.');
       return;
     }
 
     const updatedBaskets = [...baskets];
     updatedBaskets[currentBasketIndex].courses.push(course);
     setBaskets(updatedBaskets);
+    setIsSaved(false);
   };
 
   const changeBasket = (index) => {
+    if (!isSaved) {
+      const confirmSwitch = window.confirm(
+        "You have unsaved changes in the current plan. Please save your changes first by confirming this message."
+      );
+      if (!confirmSwitch) {
+        return;
+      } else {
+        saveBucket();
+      }
+    }
     setCurrentBasketIndex(index);
   };
+  
 
   const addNewBasket = () => {
-    setBaskets([...baskets, { name: `Basket ${baskets.length + 1}`, courses: [] }]);
+    if (baskets.length > 10) {
+      alert('You can only have up to 10 semester plans at a time.');
+      return;
+    }
+    setBaskets([...baskets, { name: `New Plan`, courses: [] }]);
     setIsRenaming(false);
     startRenamingBasket();
     changeBasket(baskets.length);
   };
 
   const startRenamingBasket = () => {
+    if (baskets.length === 0) {
+      // Initialize a new basket if no basket exists
+      const newBasket = { name: `New Plan`, courses: [] };
+      setBaskets([newBasket]);
+      setCurrentBasketIndex(0);
+      setNewBasketName(newBasket.name);
+    } else {
+      // If baskets exist, proceed with renaming
+      setIsRenaming(true);
+      setNewBasketName("New Plan");
+    }
     setIsRenaming(true);
-    setNewBasketName(baskets[currentBasketIndex].name);
-  };
+  };  
 
   const renameBasket = () => {
+    if (newBasketName==='New Plan') {
+      alert('Please give the your plan a name other than "New Plan"');
+      return;
+    }
+
+    const alphanumericWithSymbolsRegex = /^(?=.*[a-zA-Z0-9])[a-zA-Z0-9 _-]+$/;
+
+    if (!alphanumericWithSymbolsRegex.test(newBasketName)) {
+      alert('Your course plan name must contain at least one alphanumerical character and can only include letters, numbers, spaces, dashes, and underscores');
+      return;
+    }
+
+    const nameExists = baskets.some((basket) => 
+      basket.name.replace(/\s+/g, '').toLowerCase() === newBasketName.replace(/\s+/g, '').toLowerCase()
+    );
+    if (nameExists) {
+      alert(`${newBasketName} or a very similar name already exists. Please choose a different name for this course plan.`);
+      return;
+    }
+
     const updatedBaskets = [...baskets];
     updatedBaskets[currentBasketIndex].name = newBasketName;
     setBaskets(updatedBaskets);
     setIsRenaming(false);
+    setIsSaved(false);
   };
 
   useEffect(() => {
@@ -259,6 +346,7 @@ const Search = () => {
       (existingCourse) => existingCourse.course_title !== course.course_title
     );
     setBaskets(updatedBaskets);
+    setIsSaved(false);
   };
 
   // Save or modify bucket
@@ -287,9 +375,24 @@ const Search = () => {
         });
 
         if (response.ok) {
-          alert("Bucket modified successfully!");
+          const logObject = {
+            user_id: globalState.user.user_id,
+            session_id: globalState.session_id,
+            action: "modify-bucket",
+            value: existingBucket.id,
+          }
+          axios
+          .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error("Error logging modify-bucket:", error);
+          });
+          alert("Course plan modified successfully!");
         } else {
-          alert("Failed to modify bucket.");
+          alert("Failed to modify course plan.");
+          return;
         }
       } else {
         // Create a new bucket
@@ -306,16 +409,53 @@ const Search = () => {
         });
 
         if (response.ok) {
-          alert("Bucket created successfully!");
+          const responseData = await response.json();
+          const logObject = {
+            user_id: globalState.user.user_id,
+            session_id: globalState.session_id,
+            action: "create-bucket",
+            value: responseData,
+          }
+          axios
+          .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error("Error logging create-bucket:", error);
+          });
+          alert("Course plan created successfully!");
+          fetchBuckets(); // Re-fetch the buckets after creation
         } else {
-          alert("Failed to create bucket.");
+          alert("Failed to create course plan.");
         }
       }
     } catch (error) {
-      console.error("Error saving bucket:", error);
-      alert("Error saving bucket.");
+      console.error("Error saving course plan:", error);
+      alert("Error saving course plan.");
+      return;
     }
+    setIsSaved(true); 
   };
+
+  const calculateCLASums = () => {
+    if (!baskets[currentBasketIndex]) return { tl: 0, me: 0, ps: 0, ch: 0 };
+  
+    return baskets[currentBasketIndex].courses.reduce(
+      (totals, course) => {
+        const selectedCourse = claData.claData.find(c => c.course_title === course.course_title);
+        if (selectedCourse) {
+          totals.tl += selectedCourse.total.tl;
+          totals.me += selectedCourse.total.me;
+          totals.ps += selectedCourse.total.ps;
+          totals.cl_combined += selectedCourse.total.cl_combined;
+          totals.ch += selectedCourse.total.ch;
+        }
+        return totals;
+      },
+      { tl: 0, me: 0, ps: 0, cl_combined: 0, ch: 0 }
+    );
+  };  
 
   return (
     <div>
@@ -329,16 +469,26 @@ const Search = () => {
   {/* Block 1: Basket Controls */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
     <h3 style={{ display: 'block', marginBottom: '10px' }}>Options</h3>
-    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Basket</button>
-    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Basket</button>
-    <button onClick={saveBucket} style={{ display: 'block', marginBottom: '10px' }}>Save Current Basket</button>
-
+    <button onClick={addNewBasket} style={{ display: 'block', marginBottom: '10px' }}>Add New Course Plan</button>
+    <button onClick={startRenamingBasket} style={{ display: 'block', marginBottom: '10px' }}>Rename Course Plan</button>
+    <button 
+    onClick={saveBucket}
+    style={{
+      display: 'block',
+      marginBottom: '10px',
+      fontSize: '12pt',
+      backgroundColor: isSaved ? '#4CAF50' : '#F44336'
+    }}><b>{isSaved ? 'Plan Up to Date': 'Save Current Plan'}</b></button>
     {isRenaming && (
       <div style={{ marginTop: '10px' }}>
         <input
           type="text"
           value={newBasketName}
-          onChange={(e) => setNewBasketName(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 30) {
+              setNewBasketName(e.target.value);
+            }
+          }}
           style={{ marginRight: '5px' }}
         />
         <button onClick={renameBasket}>Save</button>
@@ -348,38 +498,72 @@ const Search = () => {
 
   {/* Block 2: Basket List */}
   <div style={{ flex: '1', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', textAlign: 'center' }}>
-    <h3 style={{ display: 'block', marginBottom: '10px' }}>My Baskets</h3>
-    <div>
-      {baskets.map((basket, index) => (
-        <button 
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>My Course Plans</h3>
+  <div>
+    {[...baskets]
+      .sort((a, b) => b.time_last_modified - a.time_last_modified) // Sort by time_last_modified in descending order
+      .map((basket, index) => (
+        <button
           key={index}
           onClick={() => changeBasket(index)}
           style={{ 
             fontWeight: currentBasketIndex === index ? 'bold' : 'normal',
             display: 'block',
             marginBottom: '10px'
-          }}
-        >
+          }}>
           {basket.name}
         </button>
       ))}
-    </div>
   </div>
+</div>
 
   {/* Block 3: Courses in Current Basket */}
-<div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-  <h3 style={{ display: 'block', marginBottom: '10px' }}>Courses in {baskets[currentBasketIndex].name}:</h3>
-  <ul>
-    {baskets[currentBasketIndex].courses.map((course, index) => (
-      <li key={index} style={{display: 'block', marginBottom: '10px' }}>
-        {course.course_title}
-        <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
+  <div style={{ flex: '3', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  {baskets.length > 0 && baskets[currentBasketIndex] ? (
+    <>
+      <h3 style={{ display: 'block', marginBottom: '10px' }}>Courses in {baskets[currentBasketIndex].name}:</h3>
+      <ul>
+        {baskets[currentBasketIndex].courses.map((course, index) => (
+          <li key={index} style={{display: 'block', marginBottom: '10px' }}>
+            {course.course_title}
+            <button onClick={() => removeCourseFromBasket(course)} style={{ marginLeft: '10px' }}>
+              Remove
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  ) : (
+    <h3 style={{ display: 'block', marginBottom: '10px' }}>No course plans available. Please create a new plan.</h3>
+  )}
 </div>
+
+{/* Block : Current plan CLA preview */}
+
+<div style={{ flex: '1.25', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  <h3 style={{ display: 'block', marginBottom: '10px' }}>Workload Preview:</h3>
+  {baskets[currentBasketIndex] ? (
+    <div>
+      {(() => {
+        const sums = calculateCLASums();
+        return (
+          <div>
+            <p>Time Load: {sums.tl.toFixed(2)}</p>
+            <p>Mental Effort: {sums.me.toFixed(2)}</p>
+            <p>Psychological Stress: {sums.ps.toFixed(2)}</p>
+            <p>-------------------------------------------</p>
+            <p>Predicted Course Load: {sums.cl_combined.toFixed(2)}</p>
+            <p>Credit Hours: {sums.ch.toFixed(2)}</p>
+          </div>
+        );
+      })()}
+    </div>
+  ) : (
+    <p>No courses in this plan.</p>
+  )}
+</div>
+
+
 </div>
 
 
@@ -387,8 +571,18 @@ const Search = () => {
         <div>
           <Title>Search</Title>
 
-          <h3>Search for courses by entering text below:</h3>
-          <Input type="text" value={searchTerm} onChange={search}></Input>
+          <h3>Search for courses by entering keywords below:</h3>
+          <Input 
+            type="text" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                search(searchTerm);
+              }
+            }}
+          />
+          <Button onClick={() => search(searchTerm)}>Search</Button>
 
           <CourseList>
             {currentSearchCourses.map(course => (
@@ -396,16 +590,17 @@ const Search = () => {
                 <h3>
                   <Highlighter
                     highlightClassName="highlighter"
-                    searchWords={[searchTerm]}
+                    searchWords={searchTerm.split(" ")}
                     autoEscape={true}
                     textToHighlight={course.course_title}
                   />
                 </h3>
-                <p>Time Load: {course.total.tl}</p>
-                <p>Mental Effort: {course.total.me}</p>
-                <p>Psychological Stress: {course.total.ps}</p>
-                <p>Credit Hours: {course.total.ch}</p>
-                <button onClick={() => addCourseToBasket(course)}>Add to Basket</button>
+                <p>Time Load: {course.total.tl.toFixed(2)}</p>
+                <p>Mental Effort: {course.total.me.toFixed(2)}</p>
+                <p>Psychological Stress: {course.total.ps.toFixed(2)}</p>
+                <p>Predicted Course Load: {course.total.cl_combined.toFixed(2)}</p>
+                <p>Credit Hours: {course.total.ch.toFixed(2)}</p> 
+                <button onClick={() => addCourseToBasket(course)}>Add to Course Plan</button>
               </Course>
             ))}
           </CourseList>

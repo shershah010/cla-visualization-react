@@ -17,6 +17,7 @@ import { useGlobalState } from "./globalState";
 import { useNavigate } from "react-router";
 import { AWS_ENDPOINT } from "../config";
 import Navbar from "./navbar";
+import axios from 'axios'
 
 import FetchBucket from "./fetchBucket";   
 
@@ -30,14 +31,6 @@ const Container = styled.div`
 const Title = styled.h1`
   text-align: center;
   margin-bottom: 20px;
-`;
-
-const Input = styled.input`
-  padding: 10px;
-  margin: 10px 0;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 `;
 
 const Button = styled.button`
@@ -67,12 +60,6 @@ const ToggleButton = styled(Button)`
   }
 `;
 
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-`;
-
 const CourseList = styled.div`
   margin: 10px 0;
   display: flex;
@@ -98,50 +85,6 @@ const ToggleContainer = styled.div`
   margin: 20px 0;
 `;
 
-const processData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-
-  const data = weeks.map((week, index) => {
-    const weekKey = `week${index + 1}`;
-    const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-
-    courses.forEach((course) => {
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl += courseWeekData[weekKey].tl;
-        weekData.me += courseWeekData[weekKey].me;
-        weekData.ps += courseWeekData[weekKey].ps;
-      }
-    });
-
-    return weekData;
-  });
-
-  return data;
-};
-
-const processIndividualData = (courses) => {
-  const weeks = semesterData.fall24.weeks;
-  const data = {};
-
-  courses.forEach((course) => {
-    const courseData = weeks.map((week, index) => {
-      const weekKey = `week${index + 1}`;
-      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
-      const courseWeekData = course.fall24.find((w) => w[weekKey]);
-      if (courseWeekData) {
-        weekData.tl = courseWeekData[weekKey].tl;
-        weekData.me = courseWeekData[weekKey].me;
-        weekData.ps = courseWeekData[weekKey].ps;
-      }
-      return weekData;
-    });
-    data[course.course_title] = courseData;
-  });
-
-  return data;
-};
-
 const Graph = () => {
   const [courseBasket, setCourseBasket] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -155,16 +98,83 @@ const Graph = () => {
   const itemsPerPage = 5;
 
   const [buckets, setBuckets] = useState({});
-  const [bucketVizName, setBucketVizName] = useState("The Selected Basket's Name and Courses Will Appear Here");
+  const [bucketVizName, setBucketVizName] = useState("");
 
-  const handleAddCourse = (course) => {
-    if (!courseBasket.includes(course)) {
-      setCourseBasket([...courseBasket, course]);
-    }
+  const [selectedSemester, setSelectedSemester] = useState("fall24");
+
+  const [activeCourses, setActiveCourses] = useState({});
+
+  const processData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+  
+    const data = weeks.map((week, index) => {
+      const weekKey = `week${index + 1}`;
+      const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+  
+      courses.forEach((course) => {
+        // Only include active courses in the sum
+        if (activeCourses[course.course_title]) {
+          const courseWeekData = course.fall24.find((w) => w[weekKey]);
+          if (courseWeekData) {
+            weekData.tl += courseWeekData[weekKey].tl;
+            weekData.me += courseWeekData[weekKey].me;
+            weekData.ps += courseWeekData[weekKey].ps;
+          }
+        }
+      });
+  
+      return weekData;
+    });
+  
+    return data;
+  };
+  
+
+  const processIndividualData = (courses) => {
+    const weeks = semesterData[selectedSemester].weeks;
+    const data = {};
+  
+    courses.forEach((course) => {
+      const courseData = weeks.map((week, index) => {
+        const weekKey = `week${index + 1}`;
+        const weekData = { name: week[weekKey], tl: 0, me: 0, ps: 0 };
+        const courseWeekData = course.fall24.find((w) => w[weekKey]);
+        if (courseWeekData) {
+          weekData.tl = courseWeekData[weekKey].tl;
+          weekData.me = courseWeekData[weekKey].me;
+          weekData.ps = courseWeekData[weekKey].ps;
+        }
+        return weekData;
+      });
+      data[course.course_title] = courseData;
+    });
+  
+    return data;
   };
 
   const handleRemoveCourse = (course) => {
     setCourseBasket(courseBasket.filter((c) => c !== course));
+  };
+
+  const handleGraphToggle = (setFn, value, param) => {
+    setFn(value);
+
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "toggle-" + param,
+      value: value,
+    };
+
+    axios
+      .post(`${AWS_ENDPOINT}/log`, { log_object: logObject })
+      .then((response) => {
+        console.log("Log response:", response);
+      })
+      .catch((error) => {
+        console.error("Error logging:", error);
+      });
+
   };
 
   const filteredCourses = claData.claData.filter((course) =>
@@ -178,7 +188,26 @@ const Graph = () => {
   );
   const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
 
+  const handleSessionStart = (userStruct, sessionID) => {
+    const logObject = {
+        user_id: userStruct.user_id,
+        session_id: sessionID,
+        action: "session_start",
+        value: sessionID,
+    }
+    
+    axios.post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
+  }
+
   const checkAuthentication = async () => {
+    var userStruct;
+    var sessionID
     if (!globalState.isAuthenticated) {
       const cookieValue = document.cookie
         .split("; ")
@@ -193,8 +222,13 @@ const Graph = () => {
           const data = await response.json();
 
           if (response.ok) {
-            setGlobalState("user", data.user);
+            sessionID = Math.random().toString(36).substring(2, 15);
+            userStruct = data.user;
+            setGlobalState("user", userStruct);
             setGlobalState("isAuthenticated", true);
+            setGlobalState("session_id", sessionID);
+            handleSessionStart(userStruct, sessionID);
+
             if (!data.user.completed_consent) {
               navigate("/consent-form");
             }
@@ -216,14 +250,34 @@ const Graph = () => {
   };
 
   useEffect(() => {
-    checkAuthentication();
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+    if (!globalState.isAuthenticated) {
+      checkAuthentication();
     }
   }, [filteredCourses, totalPages, currentPage, globalState]);
 
   const sumData = processData(courseBasket);
   const individualData = processIndividualData(courseBasket);
+
+  const calculateCLASums = () => {
+    if (!courseBasket.length) return { tl: 0, me: 0, ps: 0, ch: 0, cl_combined: 0 };
+  
+    return courseBasket.reduce(
+      (totals, course) => {
+        const selectedCourse = claData.claData.find(c => c.course_title === course.course_title);
+        if (selectedCourse) {  
+          if (activeCourses[selectedCourse.course_title]) {
+            totals.tl += selectedCourse.total.tl;
+            totals.me += selectedCourse.total.me;
+            totals.ps += selectedCourse.total.ps;
+            totals.cl_combined += selectedCourse.total.cl_combined;
+            totals.ch += selectedCourse.total.ch;
+          }
+        }
+        return totals;
+      },
+      { tl: 0, me: 0, ps: 0, cl_combined: 0, ch: 0 }
+    );
+  };  
 
   return (
     <div>
@@ -233,30 +287,46 @@ const Graph = () => {
       <Container>
         
 
-        {globalState.user && (
-          <Title>
-            Hi {globalState.user.name}, here's your Weekly Workload Chart
-          </Title>
-        )}
-
 <FetchBucket 
   user_id={globalState?.user?.user_id} 
   onBucketsFetched={(buckets) => setBuckets(buckets)} 
   onBucketDeleted={(bucketId) => {
     // Optional: Handle deletion in the parent if needed
   }} 
-  onVisualizeBucket={(bucket) => {
+  onVisualizeBucket={(id, bucket) => {
     var courseIds = bucket.course_ids;
     var noCourses = courseIds.length === 0;
     const coursesToVisualize = claData.claData.filter((course) => 
       courseIds.includes(course.course_title)
     );
+    const initialActiveCourses = {};
+    coursesToVisualize.forEach((course) => {
+      initialActiveCourses[course.course_title] = true; // Mark all courses as active initially
+    });
     if (noCourses) {
-      setBucketVizName('No courses to visualize in this basket: ' + bucket.bucket_name + ' -- Add courses through Search or delete basket.');
+      setBucketVizName('No courses to visualize in this course plan: ' + bucket.bucket_name + ' -- Add courses through the Semester Planning tool or delete course plan.');
     } else {
-      setBucketVizName('Currently visualized basket: ' + bucket.bucket_name);
+      setBucketVizName('Currently visualized course plan: ' + bucket.bucket_name);
+
     }
+    setActiveCourses(initialActiveCourses);
     setCourseBasket(coursesToVisualize);
+
+    const logObject = {
+      user_id: globalState.user.user_id,
+      session_id: globalState.session_id,
+      action: "visualize-bucket",
+      value: id,
+    }
+
+    axios
+    .post(`${AWS_ENDPOINT}/log`, {"log_object": logObject})
+    .then((response) => {
+      console.log("Log response:", response);
+    })
+    .catch((error) => {
+      console.error("Error logging:", error);
+    });
   }}
 />     
         <div style={{display: 'block', marginTop: '20px'}}>
@@ -266,27 +336,119 @@ const Graph = () => {
           {courseBasket.map((course) => (
             <div key={course.course_title}>
               {course.course_title}
-              <Button onClick={() => handleRemoveCourse(course)}>Remove</Button>
-            </div> 
+              <ToggleButton 
+                active={activeCourses[course.course_title]} 
+                onClick={() => {
+                  setActiveCourses(prevState => ({
+                    ...prevState,
+                    [course.course_title]: !prevState[course.course_title]
+                  }));
+                }}
+              >
+                {activeCourses[course.course_title] ? "Hide" : "Show"}
+              </ToggleButton>
+            </div>
           ))}
         </CourseList>
-        <ResponsiveContainer width="95%" height={400}>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <div style={{margin: '10px'}}>
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
+        { courseBasket.length > 0 ? (
+        <ToggleContainer>
+  <ToggleButton active={selectedSemester === "fall24"} onClick={() => setSelectedSemester("fall24")}>
+    Fall 2024
+  </ToggleButton>
+  <ToggleButton active={selectedSemester === "spring25"} onClick={() => setSelectedSemester("spring25")}>
+    Spring 2025
+  </ToggleButton>
+</ToggleContainer>)  : (
+  <div></div>
+)}
+</div></div>
+
+<div style={{margin: '10px'}}>
+  
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
+{ courseBasket.length > 0 ? (
+        <ToggleContainer>
+          <ToggleButton active={showSum} onClick={() => handleGraphToggle(setShowSum, !showSum, "show-sum")}>
+            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
+          </ToggleButton>
+          <ToggleButton active={showTL} onClick={()  => handleGraphToggle(setShowTL, !showTL, "show-tl")}>
+            {showTL ? "Hide Time Load" : "Show Time Load"}
+          </ToggleButton>
+          <ToggleButton active={showME} onClick={() => handleGraphToggle(setShowME, !showME, "show-me")}>
+            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
+          </ToggleButton>
+          <ToggleButton active={showPS} onClick={() =>  handleGraphToggle(setShowPS, !showPS, "show-ps")}>
+            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
+          </ToggleButton>
+        </ToggleContainer> ) : (<div></div>)}
+        </div>
+</div>
+
+<div style={{margin: '10px'}}>
+  {/* Display a preview of the current basket totals */}
+  <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
+  {courseBasket.length > 0 ? (
+      <>    
+      {/* 
+        <p><strong>Time Load:</strong> {calculateCLASums().tl.toFixed(2)}</p>
+        <p><strong>Mental Effort:</strong> {calculateCLASums().me.toFixed(2)}</p>
+        <p><strong>Psychological Stress :</strong> {calculateCLASums().ps.toFixed(2)}</p>
+        <p>-------------------------------------------</p>
+  */}
+        <p><strong>Predicted Course Load:</strong> {calculateCLASums().cl_combined.toFixed(2)}</p>
+        <p><strong>Credit Hours:</strong> {calculateCLASums().ch.toFixed(2)}</p>
+      </>
+    ) : (
+      <p></p>
+    )}
+  </div>
+</div>
+</div>
+
+{ courseBasket.length > 0 ? (
+        <ResponsiveContainer width="95%" height={450}>
           <LineChart data={showSum ? sumData : []}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" allowDuplicatedCategory={false} interval={0} />
+            <XAxis angle={-45} textAnchor="end" dataKey="name" allowDuplicatedCategory={false} interval={0} />
             <YAxis />
-            <Tooltip />
-            <Legend content={<CustomLegend />} />
+            <Tooltip 
+                formatter={(value, name, props) => {
+                  if (name === "tl") {
+                    return [`${value.toFixed(2)}`, "Time Load"];
+                  } else if (name === "me") {
+                    return [`${value.toFixed(2)}`, "Mental Effort"];
+                  } else if (name === "ps") {
+                    return [`${value.toFixed(2)}`, "Psychological Stress"];
+                  }
+                  return [value.toFixed(2), name];
+                }}
+                labelFormatter={(label) => {
+                  const currentCourse = courseBasket.find(course => course.course_title === label);
+                  return currentCourse ? currentCourse.course_title : label;
+                }}
+              />
+            <Legend content={<CustomLegend />} wrapperStyle={{ paddingTop: '40px' }} />
             {showSum ? (
               <>
-                {showTL && <Line type="monotone" dataKey="tl" stroke="#8884d8" />}
-                {showME && <Line type="monotone" dataKey="me" stroke="#82ca9d" />}
-                {showPS && <Line type="monotone" dataKey="ps" stroke="#ffc658" />}
+                {showTL && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="tl" stroke="#8884d8" />
+                )}
+                {showME && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="me" stroke="#82ca9d" />
+                )}
+                {showPS && courseBasket.some(course => activeCourses[course.course_title]) && (
+                  <Line type="monotone" dataKey="ps" stroke="#ffc658" />
+                )}
               </>
             ) : (
               courseBasket.map((course) => (
                 <>
-                  {showTL && (
+                  {activeCourses[course.course_title] && showTL && (
                     <Line
                       type="monotone"
                       dataKey="tl"
@@ -294,7 +456,7 @@ const Graph = () => {
                       stroke="#8884d8"
                     />
                   )}
-                  {showME && (
+                  {activeCourses[course.course_title] && showME && (
                     <Line
                       type="monotone"
                       dataKey="me"
@@ -302,7 +464,7 @@ const Graph = () => {
                       stroke="#82ca9d"
                     />
                   )}
-                  {showPS && (
+                  {activeCourses[course.course_title] && showPS && (
                     <Line
                       type="monotone"
                       dataKey="ps"
@@ -314,21 +476,10 @@ const Graph = () => {
               ))
             )}
           </LineChart>
-        </ResponsiveContainer>
-        <ToggleContainer>
-          <ToggleButton active={showSum} onClick={() => setShowSum(!showSum)}>
-            {showSum ? "Show Course-Level Breakdown" : "Show Semester Load Sum"}
-          </ToggleButton>
-          <ToggleButton active={showTL} onClick={() => setShowTL(!showTL)}>
-            {showTL ? "Hide Time Load" : "Show Time Load"}
-          </ToggleButton>
-          <ToggleButton active={showME} onClick={() => setShowME(!showME)}>
-            {showME ? "Hide Mental Effort" : "Show Mental Effort"}
-          </ToggleButton>
-          <ToggleButton active={showPS} onClick={() => setShowPS(!showPS)}>
-            {showPS ? "Hide Psychological Stress" : "Show Psychological Stress"}
-          </ToggleButton>
-        </ToggleContainer>
+        </ResponsiveContainer>) : (
+  <div></div>
+)}
+  
       </Container>
     </div>
   );
