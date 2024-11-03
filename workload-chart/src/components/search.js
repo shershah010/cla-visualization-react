@@ -169,8 +169,8 @@ const Search = () => {
 
       const courses = claData["claData"]
         .map(course => {
-          const searchWords = searchTerm.toLowerCase().split(" ");
-          const courseWords = course["course_title"].toLowerCase().split(" ")
+          const searchWords = searchTerm.toLowerCase().split(/[ \-]/);
+          const courseWords = course["course_title"].toLowerCase().split(/[ \-]/)
 
           const minDistances = courseWords.map(courseWord => {
             return Math.min(...searchWords.map(searchWord => courseWord.includes(searchWord) ? 0 : levenshtein.get(searchWord, courseWord)));
