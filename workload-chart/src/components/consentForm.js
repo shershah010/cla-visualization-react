@@ -89,12 +89,6 @@ const ConsentForm = () => {
 
       <div className="section">
         <h2>Introduction</h2>
-        <p>
-          My name is Professor Zachary Pardos. I am a faculty member at the
-          University of California, Berkeley, in the Graduate School of
-          Education. I am planning to conduct a research study, which I invite
-          you to take part in.
-        </p>
       </div>
 
       <div className="section">
@@ -126,7 +120,7 @@ const ConsentForm = () => {
           semester, a summary report of de-identified students’ interactions with the CLA
           platform, their academic grades, dropped courses, course enrollments,
           and withdrawal from their program and university (where applicable) is
-          collected and shared with investigators at UC Berkeley.
+          collected and shared with investigators.
         </p>
       </div>
 
@@ -201,12 +195,7 @@ const ConsentForm = () => {
         </ul>
         <p>
           All study data will only be stored on the AskOski server, which is
-          certified to process sensitive educational data and hosted at UC
-          Berkeley Data Center. The certification is of Protection Level P3 (see{" "}
-          <a href="https://security.berkeley.edu/data-classification-standard">
-            https://security.berkeley.edu/data-classification-standard
-          </a>
-          ). Your data will be protected by only granting access to the data on
+          certified to process sensitive educational data and hosted. The certification is of Protection Level P3. Your data will be protected by only granting access to the data on
           the AskOski server via remote, encrypted SSH access for analysis
           purposes.
         </p>
@@ -259,25 +248,6 @@ const ConsentForm = () => {
 
       <div className="section">
         <h2>Questions</h2>
-        <p>
-          If you have any questions or concerns about this study, you may
-          contact me directly at pardos@berkeley.edu.
-        </p>
-        <p>
-          If you have any questions or concerns about your rights and treatment
-          as a research subject, you may contact the office of UC Berkeley's
-          Committee for the Protection of Human Subjects, at 510-642-7461 or
-          subjects@berkeley.edu.
-        </p>
-        <p>
-          You are choosing to participate in this study. You can withdraw from
-          this study at any time for any reason. For any additional questions or
-          concerns pertaining to this study, please feel free to contact Zachary
-          A. Pardos 321-219-9224 pardos@berkeley.edu or the Chairs of the IRB
-          committee at Mount Saint Mary College: Jodie Fahey 845-569-3555
-          jodie.fahey@msmc.edu and Eunyoung Jung 845-569-3460
-          eunyoung.jung@msmc.edu.
-        </p>
       </div>
 
       <div className="section">

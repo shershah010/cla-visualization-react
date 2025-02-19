@@ -27,13 +27,13 @@ const Tutorial = () => {
 <details>
     <summary><b>What's the Origin Story of Course Load Analytics?</b></summary>
       <p>This platform provides AI-based predictions of course workload, which we call “Course Load Analytics.”
-</p><p>Course load analytics are machine-learned predictions trained on data from past students at your institution (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).
+</p><p>Course load analytics are machine-learned predictions trained on data from past students at your institution.
 These students rated the workload of courses they took every week and at the end of the semester.
 </p><p>Predictions leverage course-level data from the learning management system (e.g., Moodle, Canvas, Edmodo) and enrollment records (e.g., grade data and co-enrollment sequences).
 </p><p>
-These predictions are a more accurate representation of student workload perceptions than institutionally provided credit hours (<a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a>).
+These predictions are a more accurate representation of student workload perceptions than institutionally provided credit hours.
 </p><p>
-Course Load Analytics break down into three dimensions, in line with common defintions of workload from psychology (<a href='https://www.sciencedirect.com/science/article/pii/S0166411508623870' target='_blank' rel='noreferrer'>Reid & Nygren, 1988</a>):
+Course Load Analytics break down into three dimensions, in line with common defintions of workload from psychology:
 </p><p>
 <ul>
 <li><b>Time load</b> refers to the weekly time spent on coursework.
@@ -319,7 +319,7 @@ Your personal experience of workload might differ, depending on several personal
 
 <details>
     <summary><b>Can CLA help me if I'm a first-year student?</b></summary>
-    <p>Yes, CLA is especially useful for first-year students as it can help you understand the workload expectations before you've had much experience with college courses. It can guide you in choosing a balanced course load, which is important as research indicates that course workload is especially different from credit hours for first-year students (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).</p>
+    <p>Yes, CLA is especially useful for first-year students as it can help you understand the workload expectations before you've had much experience with college courses. It can guide you in choosing a balanced course load, which is important as research indicates that course workload is especially different from credit hours for first-year students.</p>
 </details>
 
 <details>
@@ -361,19 +361,19 @@ Your personal experience of workload might differ, depending on several personal
     <summary><b>What research evidence exists regarding course load analytics?</b></summary>
     <p>Course Load Analytics (CLA) offers valuable insights that go beyond traditional credit hour analysis. Key research findings demonstrate the effectiveness of CLA in understanding and predicting course load, including:</p>
     <ul>
-        <li>LMS features explain six times more course load variance (36%) than credit hours alone (6%) (<a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a>).</li>
-        <li>Psychological stress has been described as least manageable by students compared to time load and mental effort (<a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a>).</li>
-        <li>Courses with more prerequisites tend to have higher predicted workloads (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).</li>
-        <li>Student's first semester at the university is among their highest load semesters, contrary to credit hour-based analysis, which suggests it is among the lowest (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>).</li>
+        <li>LMS features explain six times more course load variance (36%) than credit hours alone (6%).</li>
+        <li>Psychological stress has been described as least manageable by students compared to time load and mental effort.</li>
+        <li>Courses with more prerequisites tend to have higher predicted workloads.</li>
+        <li>Student's first semester at the university is among their highest load semesters, contrary to credit hour-based analysis, which suggests it is among the lowest.</li>
     </ul>
 </details>
 
 <details>
     <summary><b>How has CLA been validated?</b></summary>
     <p>
-    In creating workload predictions, we replicated machine learning methods used for training, curation, and validation previously performed at UC Berkeley (<a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers & Pardos, 2023</a>), 
+    In creating workload predictions, we replicated machine learning methods used for training, curation, and validation previously performed, 
     We confirmed significant improvements in predictive accuracy on a holdout test set generalizing to new courses for each subdimension compared to a mean prediction baseline, with mean abolute errors of about 0.5 scale points for predictions. These improvements correspond to about 20% error reduction to baseline and improvements comparable to those reported in the original validation study of CLA.
-    In addition, we replicated findings reported in <a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos et al., 2023</a> regarding variance explained in student workload perceptions at this institution as one form of validation of our engineered LMS and enrollment record features used for predictive modeling.
+    In addition, we replicated findings reported in regarding variance explained in student workload perceptions at this institution as one form of validation of our engineered LMS and enrollment record features used for predictive modeling.
     Finally, we validated weekly predictions of workload sourced from 40 students through correlations with end-of-semester workload perceptions of about 60 students. Average weekly predictions of courses correlated with those semester perceptions by an average of 0.3, indicating satisfactory validity.
     </p>
 </details>
@@ -388,20 +388,10 @@ Your personal experience of workload might differ, depending on several personal
 </details>
 
 <h2>References</h2>
-<ul>
-    <li><a href='https://dl.acm.org/doi/pdf/10.1145/3576050.3576081' target='_blank' rel="noreferrer">Borchers, C., & Pardos, Z. A. (2023). Insights into undergraduate pathways using course load analytics. In LAK23: 13th International Learning Analytics and Knowledge Conference (pp. 219-229).</a></li>
-    <li><a href='https://educationaldatamining.org/edm2024/proceedings/2024.EDM-short-papers.41/2024.EDM-short-papers.41.pdf' target='_blank' rel='noreferrer'>Borchers, C., Xu, Y., & Pardos, Z. A. (2024). Are You an Early Dropper or Late Shopper? Mining Enrollment Transaction Data to Study Procrastination in Higher Education.</a></li>
-    <li><a href='https://www.sciencedirect.com/science/article/pii/S1096751622000380' target='_blank' rel='noreferrer'>Pardos, Z. A., Borchers, C., & Yu, R. (2023). Credit hours is not enough: Explaining undergraduate perceptions of course workload using LMS records. The Internet and Higher Education, 56, 100882.</a></li>
-    <li><a href='https://www.sciencedirect.com/science/article/pii/S0166411508623870' target='_blank' rel='noreferrer'>Reid, G. B., & Nygren, T. E. (1988). The subjective workload assessment technique: A scaling procedure for measuring mental workload. In Advances in psychology (Vol. 52, pp. 185-218). North-Holland.</a></li>
-    <li><a href='https://orca.cardiff.ac.uk/id/eprint/126022/1/H-Workload3_AndySmith_studentworkload_camera+ready_final.pdf' target='_blank' rel='noreferrer'>Smith, A. P. (2019). Student workload, wellbeing and academic attainment. In Human Mental Workload: Models and Applications: Third International Symposium, H-WORKLOAD 2019, Rome, Italy, November 14–15, 2019, Proceedings 3 (pp. 35-47). Springer International Publishing.</a></li>
-</ul>
+
 
 
 <h2>Contact</h2>
-<div>Conrad Borchers (cborcher [at] cs.cmu.edu)</div>
-<div>Zachary A. Pardos (pardos [at] berkeley.edu)</div>
-<div>Micah Modell (Micah.Modell [at] msmc.edu)</div>
-
 
       </Container>
     </div>
