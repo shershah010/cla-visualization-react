@@ -23,7 +23,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d build --repo https://github.com/shershah010/cla-visualization-react.git",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
