@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/cla-visualization-react/static/css/main.b44c80e4.css",
+    "main.js": "/cla-visualization-react/static/js/main.a73516e0.js",
+    "static/js/453.15bf5a62.chunk.js": "/cla-visualization-react/static/js/453.15bf5a62.chunk.js",
+    "index.html": "/cla-visualization-react/index.html",
+    "main.b44c80e4.css.map": "/cla-visualization-react/static/css/main.b44c80e4.css.map",
+    "main.a73516e0.js.map": "/cla-visualization-react/static/js/main.a73516e0.js.map",
+    "453.15bf5a62.chunk.js.map": "/cla-visualization-react/static/js/453.15bf5a62.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b44c80e4.css",
+    "static/js/main.a73516e0.js"
+  ]
+}
